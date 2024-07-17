@@ -1,0 +1,15 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}%
+\contentsline {section}{\numberline {2}Notation}{2}{section.2}%
+\contentsline {section}{\numberline {3}SMACOF}{3}{section.3}%
+\contentsline {section}{\numberline {4}Global Convergence of SMACOF}{3}{section.4}%
+\contentsline {section}{\numberline {5}Local Convergence of SMACOF}{4}{section.5}%
+\contentsline {section}{\numberline {6}Modified SMACOF}{6}{section.6}%
+\contentsline {section}{\numberline {7}Software}{7}{section.7}%
+\contentsline {section}{\numberline {8}Examples}{8}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Ekman}{8}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}De Gruijter}{10}{subsection.8.2}%
+\contentsline {section}{\numberline {9}Conclusion}{12}{section.9}%
+\contentsline {section}{\numberline {10}Appendix: Code}{12}{section.10}%
+\contentsline {subsection}{\numberline {10.1}smacof.R}{12}{subsection.10.1}%
+\contentsline {subsection}{\numberline {10.2}derivative.R}{14}{subsection.10.2}%
+\contentsline {section}{References}{17}{subsection.10.2}%

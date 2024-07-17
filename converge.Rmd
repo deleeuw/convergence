@@ -1,0 +1,381 @@
+---
+title: "Convergence of SMACOF"
+author: 
+- Jan de Leeuw - University of California Los Angeles
+date: '`r paste("First created on August 18, 2019. Last update on", format(Sys.Date(),"%B %d, %Y"))`'
+output:
+  bookdown::pdf_document2:
+    latex_engine: lualatex 
+    includes:
+      in_header: preamble.tex
+    keep_tex: yes
+    toc: true
+    toc_depth: 3
+    number_sections: yes
+  bookdown::html_document2:
+    keep_md: yes
+    css: preamble.css
+    toc: true
+    toc_depth: 3
+    number_sections: yes
+graphics: yes
+mainfont: Times New Roman
+fontsize: 12pt
+bibliography: ["mypubs.bib","total.bib"]
+abstract: To study convergence of SMACOF we introduce a modification mSMACOF that rotates the configurations from each of the SMACOF iterations to principal components. This modification, called mSMACOF, has the same stress values as SMACOF in each iteration, but unlike SMACOF it produces a sequence of configurations that properly converges to a solution. We show that the modified algorithm can be implemented by iterating ordinary SMACOF to convergence, and then rotating the SMACOF solution to principal components. The speed of linear convergence of SMACOF and mSMACOF is the same, and is equal to the largest eigenvalue of the derivative of the Guttman transform, ignoring the trivial unit eigenvalues that result from rotational indeterminacy.
+---
+
+```{r function_code, echo = FALSE}
+source("smacof.R")
+source("derivative.R")
+```
+```{r packages, echo = FALSE}
+options(digits = 10) 
+suppressPackageStartupMessages(library(numDeriv, quietly = TRUE))
+```
+
+**Note:** **Note:** This is a working manuscript which may be updated. 
+All suggestions for improvement are welcome. All Rmd, tex,
+html, pdf, R, and C files are in the public domain. Attribution will be
+appreciated, but is not required. The files can be found at
+<https://github.com/deleeuw/convergence>.
+
+# Introduction
+
+In (Euclidean, metric, least squares) multidimensional scaling we minimize the real valued loss function
+\begin{equation}
+\sigma(X)=\frac12\mathop{\sum}_{1\leq i<j\leq n} w_{ij}(\delta_{ij}-d_{ij}(X))^2,
+(\#eq:stress)
+\end{equation}
+defined on $\mathbb{R}^{n\times p}$, the space of all $n\times p$ matrices.  We follow @kruskal_64a and call $\sigma(X)$ the *stress* of *configuration* $X$. Minimizing stress over p-dimensional configurations is the *pMDS problem*.
+
+In \@ref(eq:stress) the matrices of *weights* $W=\{w_{ij}\}$ and *dissimilarities* $\Delta=\{\delta_{ij}\}$ are symmetric, non-negative, and hollow (zero diagonal). The matrix-valued function $D(X)=\{d_{ij}(X)\}$ contains Euclidean distances between the rows of the *configuration* $X$, which are the coordinates of $n$ *points* in $\mathbb{R}^p$. Thus $D(X)$ is also symmetric, non-negative, and hollow. 
+
+# Notation
+
+First some convenient notation, first introduced in @deleeuw_C_77. Vector $e_i$ has $n$ elements, with element $i$ equal to $+1$, and all other elements zero. $A_{ij}$ is the matrix $(e_i-e_j)(e_i-e_j)'$, which means elements $(i,i)$ and $(j,j)$ are equal to $+1$, while $(i,j)$ and $(j,i)$ are $-1$. Thus 
+\begin{equation}
+d_{ij}^2(X)=(e_i-e_i)'XX'(e_i-e_j)=\text{tr}\ X'A_{ij}X=\text{tr}\ A_{ij}C,
+(\#eq:anot)
+\end{equation}
+with $C=XX'$.
+
+We also define 
+\begin{equation}
+V=\mathop{\sum}_{1\leq i<j\leq n}w_{ij}A_{ij},
+(\#eq:vdef)
+\end{equation}
+and the matrix-valued function $B$ with
+\begin{equation}
+B(X)=\mathop{\sum}_{d_{ij}(X)>0}w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}A_{ij},
+(\#eq:bdef)
+\end{equation}
+and $B(X)=0$ if $X=0$. If we assume, without loss of generality, that
+\begin{equation}
+\frac12\mathop{\sum}_{1\leq i<j\leq n}w_{ij}\delta_{ij}^2=1,
+(\#eq:dnorm)
+\end{equation}
+then
+\begin{equation}
+\sigma(X)=1-\text{tr}\ X'B(X)X+\frac12\text{tr}\ X'VX.
+(\#eq:S)
+\end{equation}
+
+We also suppose, without loss of generality, that $W$ is *irreducible*, so that the pMDS problem does not separate into a number of smaller pMDS problems. For symmetric matrices irreducibity means that we cannot find a permutation matrix $\Pi$ such that $\Pi'W\Pi$ is the direct sum of a number of smaller matrices. 
+
+$V$ is symmetric with non-positive off-diagonal elements. It is doubly-centered (rows and columns add up to zero) and thus weakly diagonally dominant. It follows that it is positive semi-definite (see @varga_62, section 1.5). Because of irreducibility it has rank $n-1$, and the vectors in its null space are all proportional to $e$, the vector with all elements equal to $+1$. The matrix $B(X)$ is also symmetric, positive semi-definite, and doubly-centered for each $X$. It may not be irreducible, because for example $B(0)=0$.
+
+# SMACOF
+
+Define the *Guttman Transform* of configuration $X$ as
+\begin{equation}
+\Gamma(X)=V^+B(X)X
+(\#eq:guttman)
+\end{equation}
+The *SMACOF algorithm* is
+\begin{equation}
+X^{(k+1)}=\Gamma(X^{(k)})=\Gamma^k(X^{0})
+(\#eq:smacof)
+\end{equation}
+@deleeuw_C_77 shows that the SMACOF iterations \@ref(eq:smacof) tend (in a specifc sense described later in this paper) to a fixed point of the Guttman transform, i.e. to an $X$ with $\Gamma(X)=X$. If stress is differentiable at $X$ then the fixed points of the Guttman transform are stationary points, where the derivative of stress vanishes. Also $V^+B(X)X=X$ shows that the columns of $X$ are eigenvectors of $V^+B(X)$, with eigenvalues equal to one.
+
+The algorithm was proposed by @guttman_68, by differentiating stress and setting the derivatives equal to zero. This ignores the problem that stress is not differentiable if one or more distances are zero, and it also does not say anything about convergence of the algorithm. In @deleeuw_C_77 a new derivation of the algorithm was given, using a majorization argument based on the Cauchy-Schwarz inequality. This make it possible to avoid problems with differentiability, and it leads to a simple convergence proof. 
+
+# Global Convergence of SMACOF
+
+Following @deleeuw_C_77 we also define
+\begin{align}
+\rho(X)&=\mathop{\sum}_{1\leq i<j\leq n} w_{ij}\delta_{ij}d_{ij}(X)=\text{tr}\ X'B(X)X,\\
+\eta^2(X)&=\mathop{\sum}_{1\leq i<j\leq n} w_{ij}d_{ij}^2(X)=\text{tr}\ X'VX,
+\end{align}
+and
+\begin{equation}
+\lambda(X)=\frac{\rho(X)}{\eta(X)}.
+\end{equation}
+The main result in @deleeuw_C_77 is: 
+
+1. The SMACOF iterates $X^{(k)}$ are in the compact set $\eta(X)\leq 1$, 
+2. $\{\rho(X^{k})\}, \{\eta^(X^{k})\}$ and $\{\lambda(X^{k})\}$ are increasing sequences, with limits $\rho_\infty,\eta_\infty$ and $\lambda_\infty$, where $\eta_\infty=\lambda_\infty=\sqrt{\rho_\infty}$.
+3. $\{\sigma(X^{k})\}$ is a decreasing sequence converging to $\sigma_\infty=1-\eta^2_\infty$.
+4. At any accumulation point $X_\infty$ of $\{\sigma(X^{k})\}$ we have $\sigma(X_\infty)=\sigma_\infty$ and $X_\infty=\Gamma(X_\infty)$.
+5. $\eta(X^{(k+1)}-X^{(k)})\rightarrow 0$ and thus either $\{\sigma(X^{k})\}$ converges or the set of accumulation points of $\{\sigma(X^{k})\}$ is a continuum.
+
+So, in words, the sequence of stress values converges monotonically. The sequence of configurations is asymptotically regular and has one or more accumulation points. Each accumulation point is a fixed point of the Guttman transform. All accumulation points have the same function value, which is also the limit of the stress sequence. 
+
+But it is important to emphasize that @deleeuw_C_77 did not show that the configuration sequence $\{X^{(k)}\}$ actually a Cauchy sequence, and converges to a configuration $X_\infty$. This is basically because of the rotational invariance of the pMDS problem. If $K$ is a rotation matrix, i.e. $K'K=KK'=I$, then $d_{ij}(XK)=d_{ij}(X)$ for all $i$ and $j$, and thus $\sigma(XK)=\sigma(X)$. If $X$ is a fixed point of the Guttman tranform, then so is $XK$.
+Consequently there are no isolated fixed points, each fixed point is part of a nonlinear continuum of fixed points.
+
+It is also of interest that @deleeuw_A_84f showed that if $X$ is a local minimizer of stress then $d_{ij}(X)>0$ for all $i$ and $j$ such that $w_{ij}\delta_{ij}>0$. Thus, if weights and dissimilarities are positive, stress is differentiable at a local minimum. 
+@deleeuw_R_93c shows that stress has only a single local maximum at $X=0$, and consequently the only possible stationary points are local minima and saddle points. It is shown by
+@deleeuw_E_19g that all fixed points of the Guttman transform which are not of full column rank are saddle points. Thus if $X$ is a local minimizer of pMDS, then adding $q$ zero columns to $X$ produces a saddle point $[X\mid 0]$ for (p+q)MDS. At saddle points there are always directions in which stress can be decreased, and consequently the SMACOF algorithm with enough iterations will eventually get close to a continuum of local minima.
+
+
+# Local Convergence of SMACOF
+
+@deleeuw_A_88b studies the local convergence of SMACOF, i.e. the *rate of convergence* of the SMACOF iterations. There is, however, a problem not adequately addressed in that article, which has quite a bit of hand-waiving, and some incorrect statements. If there is no convergence to a single configuration then the usual rate of convergence is not defined either.
+
+We know the sequence $\{\eta(X^{(k+1)}-X^{(k)})\}$ tends to zero. We can measure its rate of convergence by the *ratio factor*
+\begin{equation}
+q_k=\frac{\eta(X^{(k+1)}-X^{(k)})}{\eta(X^{(k)}-X^{(k-1)})},
+\end{equation}
+and the *root factor*
+\begin{equation}
+r_k=\eta(X^{(k+1)}-X^{(k)})^{1/k}.
+\end{equation}
+There is no guarantee that either $\{q_k\}$ or $\{r_k\}$ converges, but
+\begin{equation}
+\liminf_{k\rightarrow\infty} q_k\leq\liminf_{k\rightarrow\infty} r_k\leq\limsup_{k\rightarrow\infty} r_k\leq\limsup_{k\rightarrow\infty} q_k
+\end{equation}
+Thus if $\lim_{k\rightarrow\infty} q_k$ exists then $\lim_{k\rightarrow\infty} r_k$ exist and the two limit values are equal. See @rudin_76, p. 68, theorem 3.37. 
+
+The rate of convergence of the SMACOF iterations at a fixed point $X$ is computed in @deleeuw_A_88b as the spectral norm $\kappa(X)=\|\mathcal{D}\Gamma(X)\|_\infty$, i.e. as the modulus of the largest eigenvalue of the derivative of the Guttman transform.
+There are good reasons to compute this quantity. From Ostrovski's Theorem (@ostrowski_73, theorem 22.1, p. 151 , @ortega_rheinboldt_70, theorem 10.1.3, p. 300) we know that if $\kappa(X)<1$, then $X$ is a *point of attraction* of the SMACOF iteration. If we start close enough then the iterations will converge to $X$. We also know (@ostrowski_73, theorem 22.2, p. 152) that if $\kappa(X)>1$ then $X$ is a *point of repulsion*, which means the iterations will diverge when started in a certain solid angle with $X$ at its apex. 
+
+If we define, with @ortega_rheinboldt_70, chapter 9, for a sequence $\{X^{(k)}\}$ converging to $X$, the ratio and root convergence factors
+\begin{equation}
+Q_1(\{X^{(k)}\})=\limsup_{k\rightarrow\infty}\frac{\eta(X^{(k+1)}-X)}{\eta(X^{(k)}-X)},
+\end{equation}
+and
+\begin{equation}
+R_1(\{X^{(k)}\})=\limsup_{k\rightarrow\infty}\ \eta(X^{(k)}-X)^{1/k},
+\end{equation}
+then $\kappa(X)<1$ implies $R_1(X^{(k)})=\kappa(X)$ (@ortega_rheinboldt_70, theorem 10.1.4, p. 301). Alo $R_1(X^{(k)})$ is independent of the norm we have chosen, which is $\eta$ in the SMACOF case (@ortega_rheinboldt_70, theorem 9.9.2, p. 288). Because $Q_1(X^{(k)})$ depends on the norm we can only assert that 
+$Q_1(X^{(k)})\geq R_1(X^{(k)})=\kappa(X)$, although it is guaranteed in the SMACOF case that some norm exists for which there is equality (@ortega_rheinboldt_70, Notes and Remarks NR 10.1-5, p. 306).
+
+There is a problem, however, with applying the Ostrowski and Ortega-Rheinboldt results in our case. Because of the invariance of distances under rotation we have $\kappa(X)=1$, no matter what $X$ is. And, basically for the same reason, we have not shown that the SMACOF iterations converge to a fixed point at all. @deleeuw_A_88b on page 171 acknowledges the problem. In fact, he proposes a way around the problem in the proof of theorem 3 on page 175, but the proof is not very convincing, although convincing enough to get past the reviewers. I will try to be more specific and precise.
+
+Observe that
+\begin{equation}
+\mathcal{D}\Gamma(X)=V^+\mathcal{D}^2\rho(X),
+(\#eq:dgamma)
+\end{equation}
+and
+\begin{equation}
+\mathcal{D}^2\sigma(X)=V-\mathcal{D}^2\rho(X)=V(I-\mathcal{D}\Gamma(X)).
+(\#eq:d2sigma)
+\end{equation}
+Because $\rho$ is convex $\mathcal{D}^2\rho(X)$ is symmetric and positive semi-definite.
+The eigenvalues of $\mathcal{D}\Gamma(X)$ are the generalized eigenvalues of the positive semi-definite matrix pair $(\mathcal{D}^2\rho(X),V)$. 
+
+An explicit formula for the derivatives of the Guttman transform, or equivalently for the second derivatives of stress, was first given by @deleeuw_A_88b. We write $\mathcal{D}\Gamma(X)[Y]$ for the derivative evaluated at $Y$. Partial derivatives can be obtained by choosing $Y=e_ie_s'$. Of course we assume here that $d_{ij}(X)>0$ for all
+$i<j$ with $w_{ij}\delta_{ij}>0$.
+\begin{equation}
+\mathcal{D}\Gamma(X)[Y]=V^+\{B(X)Y-H(X,Y)X\},
+(\#eq:dgammamat)
+\end{equation}
+with
+\begin{equation}
+H(X,Y)=\mathop{\sum}_{1\leq i<j\leq n}w_{ij}\frac{\delta_{ij}}{d_{ij}(X)}\frac{\text{tr}\ X'A_{ij}Y}{d_{ij}^2(X)}A_{ij}.
+(\#eq:hdef)
+\end{equation}
+These formulas, together with equations \@ref(eq:dgamma) and \@ref(eq:d2sigma), prove the main results in @deleeuw_A_88b.
+
+1. All eigenvalues of $\mathcal{D}\Gamma(X)$ are non-negative.
+2. **(Homogeneity)** $X$ is an eigenvector of $\mathcal{D}\Gamma(X)$ with eigenvalue zero.
+3. **(Translation)** $\mathcal{D}\Gamma(X)$ has at least $p$ additional eigenvalues equal to zero, corresponding with eigenvectors of the form $ee_s'$, where $e$ has all elements equal to one and $e_s$ has one of its elements equal to one and the others equal to zero.
+4. **(Rotation)** If $X$ is a fixed point of the Guttman transform then $\mathcal{D}\Gamma(X)$ has at least $\frac12 p(p-1)$ eigenvalues equal to one, corresponding with eigenvectors of the form $XA$, with $A$ anti-symmetric.
+5. At a local minimum point $X$ of stress all eigenvalues of $\mathcal{D}\Gamma(X)$ are less than or equal to one. At a strict local minimum they are strictly less than one.
+6. At a saddle point $X$ of stress the largest eigenvalue of $\mathcal{D}\Gamma(X)$ is larger than one.
+
+
+
+# Modified SMACOF
+
+To avoid the problems caused by a continuum of fixed points @deleeuw_A_88b proposes to rotate each SMACOF iterate to a unique position, for example to principal components.
+For any $X$ with singular value decomposition $X=K\Lambda L'$ we define $\Pi(X)=K\Lambda=XL.$ Note that if one or more singular values are equal then
+$\Pi$ is not unique and becomes a point-to-set map. We can rotate within each of the spaces corresponding to multiple singular values, and thus we have not completely eliminated indeterminacy due to rotation. In the sequel we simply assume that the $p$ singular values of $X$ are different.
+
+Now consider the iterations 
+\begin{equation}
+\tilde X^{(k+1)}=\Pi(\Gamma(\tilde X^{(k)}))={(\Pi\Gamma)}^k(\tilde X^{0}).
+\end{equation}
+Let's call this modified SMACOF, or mSMACOF for short.
+
+It looks initialy as if mSMACOF require a great deal of extra computation, but this is actually not the case. If $M$ is a rotation matrix we have $\Pi(XM)=\Pi(X)$ and $\Gamma(XM)=\Gamma(X)M$. This implies that $\Pi\Gamma\Pi(X)=\Pi\Gamma(X)$ for all $X$. As a result the sequences $\{X^{(k)}\}$ and $\{\tilde X^{(k)}\}$ have a simple relationship. If we start the $\{\tilde X^{(k)}\}$ sequence with $X^{0}$ then for each $k$ we have $\sigma(\tilde X^{(k)})=\sigma(X^{(k)})$ and $\tilde X^{(k)}=\Pi(X^{(k)})$. Thus the
+two sequences of stress values are exactly the same for SMACOF and mSMACOF and the two configurations, and consequnetly also the accumulation points of the two sequences of configurations, just differ by a rotation. To get $\tilde X^{(k)}$ we can just compute the SMACOF iterate $X^{(k)}$ and rotate it to principal components.
+
+The derivative of $\Pi\Gamma$ is, by the chain rule,
+\begin{equation}
+\mathcal{D}\Pi\Gamma(X)=\mathcal{D}\Pi(\Gamma(X))\mathcal{D}\Gamma(X).
+\end{equation}
+After some computation we find
+\begin{equation}
+\mathcal{D}\Pi(X)[Y]=YL+K\Lambda M,
+\end{equation}
+where $X=K\Lambda L'$ and $M$ is the anti-symmetric matrix with off-diagonal elements
+\begin{equation}
+m_{ij}=-\frac{\lambda_iu_{ij}+\lambda_ju_{ji}}{\lambda_i^2-\lambda_j^2}
+\end{equation}
+with $U=K'YL$. 
+
+If $X$ satisfies $\Pi(X)=X$ then $L=I$ and thus $\mathcal{D}\Pi(X)[Y]=Y+XM$ and $U=K'Y$.
+We proceed to compute the eigenvectors and eigenvalues of the Jacobian at an $X$ with
+$\Pi(X)=X$.
+
+1. If $Y=XA$ with $A$ antisymmetric then $M=-L'AL$ and $\mathcal{D}\Pi(X)[Y]=0$.
+This corresponds with $\frac12 p(p-1)$ zero eigenvalues
+2. If $Y=K\Lambda^{-1}A$ with $A$ antisymmetric then $M=0$. This gives $\frac12 p(p-1)$
+eigenvectors with eigenvalue one.
+3. If $Y=K\Lambda^{-1}D$ wth $D$ diagonal then $M=0$. This gives another $p$ eigenvectors with eigenvalue one.
+4. If $Y=K_\perp S$ with $K_\perp$ a basis for the orthogonal complement of $X$ then $M=0$ and we have another $p(n-p)$ eigenvalues equal to one.
+
+This is a complete set of eigenvectors. It turns out all eigenvalues are equal to one, except for $\frac12 p(p-1)$ zero eigenvalues. It follows that fixed points of
+$\Pi\Gamma$ are of the form $\tilde X=XL$, with $X$ a fixed point of $\Gamma$ and $L$ the rotation of $X$ to principal components). Thus $\Gamma(\tilde X)=\Gamma(X)L=XL=\tilde X$, and $\tilde X$ is a fixed point of both $\Gamma$ and $\Pi\Gamma$. The eigenvalues of
+$\mathcal{D}\Pi\Gamma(\tilde X)$ are the same as the eigenvalues of $\mathcal{D}\Gamma(X)$, except for the $\frac12 p(p-1)$ eigenvalues equal to one, corresponding with $XA$ for antisymmetric A, which are replaced by zero eigenvalues. The Ostrowski and Ortega-Rheinboldt
+results now apply directly to $\Pi\Gamma$. If there are no zero distances, if the singular values of $X$ are different, and if the largest eigenvalue of $\mathcal{D}\Pi\Gamma(X)$ is less than one, then $X$ is a point of attraction, the SMACOF iterations converge to $X$ if started sufficiently close to it (in the *attraction ball* of $X$), and $R_1(X)$ is equal to the largest eigenvalue.
+
+# Software
+
+The appendix has an ad-hoc version of the `smacof` function. Its arguments are
+```{r smacof_args}
+args(smacof)
+```
+The function expects both dissimilarities and weights to be of class `dist`. The default initial configuration uses classical MDS (@torgerson_58). We iterate until either the distance $\eta(X^{(k)}-X^{(k-1)})$ between successive configurations is less than `eps`, which has the ridiculously small default value of `r 1e-15`, or until the maximum number of iterations `itmax` is reached, which defaults to the ridiculously large default value of 10000. If `pca` is TRUE all iterates are rotated to principal components. If `verbose` is TRUE we print, for each iteration, the iteration number $k$, the stress $\sigma(X^{(k)})$, the change $\eta(X^{(k)}-X^{(k-1)})$, and the root and ratio convergence factors.
+
+The second file `derivative.R` computes the Jacobian of the iteration functions at the limit (i.e. at the point where SMACOF stops). There are actually six functions in the file. The three functions `dGammaA, dPiA` and `dPiGammaA` use the analytical expressions we have derived earlier for $\mathcal{D}\Gamma(X), \mathcal{D}\Pi(X)$ and $\mathcal{D}\Pi\Gamma(X).$ The corresponding functions `dGammaN, dPiN` and `dPiGammaN` numerically compute the Jacobian using the `jacobian` function from the `numDeriv` package (@gilbert_varadhan_19). They are basically used to check the formulas.
+
+# Examples
+
+## Ekman
+
+Time for a numerical example. We will use the color similarity data of @ekman_54, taken from the SMACOF package (@deleeuw_mair_A_09c). 
+We transform Ekman's similarities $s_{ij}$ to dissimilarities $\delta_{ij}$ using $\delta_{ij}=(1-s_{ij})^3$, and we use unit weights in $W$. 
+
+```{r ekman_data, echo = FALSE}
+data (ekman, package = "smacof")
+delta <- (1 - ekman) ^ 3
+weights <- rep (1, length (ekman))
+attributes (weights) <- attributes (ekman)
+delta <- delta / sqrt (sum (weights * delta ^ 2) / 2)
+```
+
+
+```{r ekman_smacof, echo = FALSE}
+h <- smacof (delta, weights, eps = 1e-15)
+```
+SMACOF requires `r h$itel` iterations for convergence. The minimum of stress is `r h$s`, 
+the root factor is equal to `r h$r` and the ratio factor is `r h$q`. The eigenvalues of $\mathcal{D}\Gamma(X)$ are
+```{r ekman_eval_h, echo = FALSE}
+hDerA <- eigen (dGammaA (h$x, delta, weights))$values
+for (i in 1:28) {
+  cat (
+    formatC(Mod(hDerA[i]), digits = 15, format = "f"),
+    "\n"
+  )
+}
+```
+As an aside, the Ekman example (with this particular transformation of the similarities) is special, because the two-dimensional solution is actually the global minimum over all configurations (i.e. the global mnimum of pMDS for all $1\leq p\leq n$). As shown in @deleeuw_U_14b this follows from the fact that the two unit eigenvalues of $V^+B(X)$ are actually its two largest eigenvalues, and consequently $X$ is the solution of the convex full-dimensional nMDS relaxation of the pMDS problem (@deleeuw_groenen_mair_E_16e). The eigenvalues of $V^+B(X)$ are
+```{r ekman_eval_b, echo = FALSE}
+for (e in eigen(h$b)$values) {
+  cat (formatC(e, digits = 15, format = "f"), "\n")
+}
+```
+
+```{r ekman_smacof_mod, echo = FALSE}
+h <- smacof (delta, weights, pca = TRUE, eps = 1e-15)
+```
+We now set `pca=TRUE` and run mSMACOF. It requires `r h$itel` iterations for convergence. The minimum of stress is `r h$s`, and the root factor is equal to `r h$r` and the ratio factor is `r h$q`. The eigenvalues
+of $\mathcal{D}\Pi\Gamma(X)$ at the fixed point $X$ are 
+```{r ekman_eval_h_mod, echo = FALSE}
+hDerA <- eigen (dPiGammaA (h$x, delta, weights))$values
+for (i in 1:28) {
+  cat (
+    formatC(Mod(hDerA[i]), digits = 15, format = "f"),
+    "\n"
+  )
+}
+```
+They are equal to the eigenvalues of $\mathcal{D}\Gamma(X)$ and the root convergence factor
+$R_1(\{X^{(k)}\})$ is `r max(Mod(hDerA))`.
+
+## De Gruijter
+
+The second example are dissimilarties between nine Dutch political parties, collected a long time ago by @degruijter_67.
+
+```{r poldist_data, echo = FALSE}
+poldist <-
+structure(c(5.63, 5.27, 4.6, 4.8, 7.54, 6.73, 7.18, 6.17, 6.72, 
+5.64, 6.22, 5.12, 4.59, 7.22, 5.47, 5.46, 4.97, 8.13, 7.55, 6.9, 
+4.67, 3.2, 7.84, 6.73, 7.28, 6.13, 7.8, 7.08, 6.96, 6.04, 4.08, 
+6.34, 7.42, 6.88, 6.36, 7.36), Labels = c("KVP", "PvdA", "VVD", 
+"ARP", "CHU", "CPN", "PSP", "BP", "D66"), Size = 9L, call = quote(as.dist.default(m = polpar)), class = "dist", Diag = FALSE, Upper = FALSE)
+poldist <- poldist - 3
+print (poldist, digits = 3)
+weights <- rep (1, length (poldist))
+attributes (weights) <- attributes (poldist)
+poldist <- poldist / sqrt (sum (weights * poldist ^ 2) / 2)
+```
+We analyze the data with SMACOF using three dimensions.
+```{r poldist_smacof, echo = FALSE}
+h <- smacof (poldist, weights, p = 3, eps = 1e-15)
+```
+SMACOF requires `r h$itel` iterations for convergence. The minimum of stress is `r h$s`,  the root factor is equal to `r h$r`, and the ratio factor is `r h$q`. The eigenvalues of $\mathcal{D}\Gamma(X)$ are
+```{r poldist_eval_h, echo = FALSE}
+hDerA <- eigen (dGammaA (h$x, poldist, weights))$values
+for (i in 1:length(hDerA)) {
+  cat (
+    formatC(Mod(hDerA[i]), digits = 15, format = "f"),
+     "\n"
+  )
+}
+```
+In this case there is no guarantee that we have the three-dimensional global minimum. The unit eigenvalues of the matrix $V^+B(X)$ are not the three largest ones.
+```{r poldist_eval_b, echo = FALSE}
+for (e in eigen(h$b)$values) {
+  cat (formatC(e, digits = 15, format = "f"), "\n")
+}
+```
+
+```{r poldist_msmacof, echo = FALSE}
+h <- smacof (poldist, weights, p = 3, pca = TRUE, eps = 1e-15)
+```
+mSMACOF in three dimensions requires `r h$itel` iterations for convergence. The minimum of stress is `r h$s`, 
+the root factor is equal to `r h$r`, and the ratio factor is `r h$q`. The eigenvalues of $\mathcal{D}\Pi\Gamma(X)$ are
+```{r poldist_eval_mh, echo = FALSE}
+hDerA <- eigen (dPiGammaA (h$x, poldist, weights))$values
+for (i in 1:length(hDerA)) {
+  cat (
+    formatC(Mod(hDerA[i]), digits = 15, format = "f"),
+     "\n"
+  )
+}
+```
+Again, as expected, the eigenvalues for SMACOF and mSMACOF are the same and the root convergence factor is the spectral norm of the mSMACOF derivative, which is `r max(Mod(hDerA))`.
+
+# Conclusion
+
+From a practical point of view there is no need to ever use modified SMACOF. We only use the Guttman transform, and compute the largest eigenvalue of its derivative at the solution $X$, ignoring the $\frac12 p(p-1)$ trivial unit eigenvalues. That largest eigenvalue, if it is strictly smaller than one, is the root convergence factor. In that case SMACOF can be said to converge to $\Pi(X)$, which is the SMACOF solution rotated to principal components. 
+
+# Appendix: Code
+
+## smacof.R
+
+```{r file_auxilary1, code = readLines("smacof.R")}
+```
+
+## derivative.R
+
+```{r file_auxilary2, code = readLines("derivative.R")}
+```
+
+# References
