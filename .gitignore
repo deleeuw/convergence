@@ -1,0 +1,17 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.aux
+*.md
+*.Rproj
+*.o
+*.so
+*.log
+*.toc
+voronoi_cache/
+!README.md
+voronoi_files/
+voronoi_libs/
+/.quarto/
+.positai
