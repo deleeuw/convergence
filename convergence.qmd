@@ -182,11 +182,13 @@ Define the *Guttman Transform* of configuration $X$ as
 \Gamma(X):=V^+B(X)X
 \label{eq-guttman}
 \end{equation}
-The *SMACOF algorithm* is
+The *SMACOF algorithm* is, with iteration counter $k\geq 1$,
 \begin{equation}
-X^{(k+1)}=\Gamma(X^{(k)})=\Gamma^k(X^{0})
+X^{(k)}=\Gamma(X^{(k-1)})=\Gamma^k(X^{0}),
 \label{eq-smacof}
 \end{equation}
+where $\Gamma^0=I$ and $\Gamma^k(X):=\Gamma(\Gamma^{k-1}(X))$.
+
 @deleeuw_C_77 shows that the SMACOF iterations \eqref{eq-smacof} tend (in a
 specific sense described later in this paper) to a fixed point of the Guttman
 transform, i.e. to an $X$ with $\Gamma(X)=X$. If stress is differentiable at $X$
@@ -194,18 +196,27 @@ then the fixed points of the Guttman transform are stationary points, where the
 derivative of stress vanishes. Also $V^+B(X)X=X$ shows that the columns of $X$
 are eigenvectors of $V^+B(X)$, with eigenvalues equal to one.
 
-The algorithm was proposed by @guttman_68, by differentiating stress and setting
-the derivatives equal to zero. This derivation ignores the problem that stress
-is not differentiable if one or more distances are zero, and it also does not
-say anything about convergence of the algorithm. In @deleeuw_C_77 and
-@deleeuw_heiser_C_77 a new derivation of the algorithm was given, using a
-majorization argument based on the Cauchy-Schwarz inequality. This make it
-possible to avoid problems with differentiability, and it leads to a simple
-convergence proof.
+The algorithm (without weights) was proposed by @guttman_68, by differentiating
+stress and setting the derivatives equal to zero. This derivation ignores the
+problem that stress is not differentiable if one or more distances are zero, and
+it also does not say anything about convergence of the algorithm. In
+@deleeuw_C_77 and @deleeuw_heiser_C_77 a new derivation of the algorithm was
+given, using a majorization argument based on the Cauchy-Schwarz inequality.
+This make it possible to avoid problems with differentiability, and it leads to
+a simple convergence proof.
 
 ## Coefficient Space
 
-
+Define the *Guttman Transform* of coefficients $\alpha$ as
+\begin{equation}
+\tilde\Gamma(\alpha):=\tilde V^+\tilde B(\alpha)\alpha
+\label{eq-guttmana}
+\end{equation}
+The *SMACOF algorithm* is
+\begin{equation}
+\alpha^{(k+1)}=\tilde\Gamma(\alpha^{(k)})=\tilde\Gamma^k(\alpha^{0})
+\label{eq-smacofa}
+\end{equation}
 
 # Global Convergence of SMACOF
 
