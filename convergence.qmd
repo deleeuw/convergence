@@ -66,42 +66,94 @@ options(digits = 10)
 
 # Introduction
 
-In (Euclidean, metric, least squares) multidimensional scaling (MDS) we minimize
-the real valued loss function
+The components of a (Euclidean, metric, least squares, r-dimensional) multidimensional scaling (MDS) 
+problem are
+
+* a symmetric, non-negative, and
+hollow\footnote{A hollow matrix has a zero diagonal.} matrix $\Delta$ of *dissimilarities*,
+* a symmetric, non-negative, and hollow matrix $W$ of *weights*,
+* a list of $m$ *configurations* $Y_1,\cdots,Y_m$ of dimension $n\times r$.
+
+
+
+we minimize
+the real valued loss function\footnote{The symbol $:=$ is used for definitions.}
 \begin{equation}
 \sigma(X):=\frac12\mathop{\sum}_{1\leq i<j\leq n} w_{ij}(\delta_{ij}-d_{ij}(X))^2,
-(\#eq:stress)
+\label{eq-stressx}
 \end{equation}
 defined on $\mathbb{R}^{n\times p}$, the space of all $n\times p$ matrices. We
-follow @kruskal_64a and call $\sigma(X)$ the *stress* of *configuration* $X$.
-Minimizing stress over p-dimensional configurations is the MDS problem.
+call $\sigma(X)$ the *stress* of *configuration* $X$. Minimizing stress over all
+$p-$dimensional configurations (over *configuration space*) is a classical metric
+MDS problem (@kruskal_64a, @kruskal_64b). The parameters of the problem are the
+$np$ elements of $X$.
 
-In \@ref(eq:stress) the matrices of *weights* $W=\{w_{ij}\}$ and
-*dissimilarities* $\Delta=\{\delta_{ij}\}$ are symmetric, non-negative, and
-hollow (zero diagonal). The matrix-valued function $D(X)=\{d_{ij}(X)\}$ contains
-Euclidean distances between the rows of the *configuration* $X$, which are the
-coordinates of $n$ *points* in $\mathbb{R}^p$. Thus $D(X)$ is also symmetric,
-non-negative, and hollow.
+In \eqref{eq-stressx} the matrices of *weights* $W=\{w_{ij}\}$ and
+*dissimilarities* $\Delta=\{\delta_{ij}\}$ are . The matrix-valued
+function $D(X)=\{d_{ij}(X)\}$ contains Euclidean distances between the rows of
+the configuration $X$, which are the coordinates of $n$ *points* in
+$\mathbb{R}^p$. Thus $D(X)$ is also symmetric, non-negative, and hollow.
 
-We also follow @deleeuw_C_77 and assume, without any real loss of generality,
-that $W$ is *irreducible*, so that the MDS problem does not separate into a
-number of smaller MDS problems. For symmetric matrices irreducibility means that
-we cannot find a permutation matrix $\Pi$ such that $\Pi'W\Pi$ is block
-diagonal, i.e. the direct sum of a number of smaller matrices.
+We also assume, without any real loss of generality, that $W$ is *irreducible*,
+so that the MDS problem does not separate into a number of smaller MDS problems
+(@deleeuw_C_77). For the symmetric matrix $W$ irreducibility means that we
+cannot find a permutation of rows and columns that make the permuted $W$
+block-diagonal, i.e. the direct
+sum\footnote{The direct sum of a number of matrices $X_1,\dots,X_m$ is a block-diagonal matrix with the $m$ matrices as diagonal submatrices.}
+of a number of smaller matrices.
+
+$s,t=1,\cdots,m$
+$p,q=1,\cdots,r$
+$i,j,k,l=1,\cdots,n$
+
+For our purposes a slightly more general parametrization of stress is more
+convenient. Suppose $Y_1,\cdots,Y_m$, with $m\leq np$, are linear independent
+elements of configuration space $\mathbb{R}^{n\times p}$. We now parametrize the
+configuration $X$ as a linear combination
+\begin{equation}
+X=\sum_{s=1}^m\alpha_s Y_s\label{eq-alpha}
+\end{equation}
+of the matrices $Y_s$ in the basis. We will study a version of smacof
+parametrized using *coefficient space* $\mathbb{R}^m$, the space of all vectors
+with the coefficients $\alpha$ of the linear combinations.
+
+If $m=np$ then the alternative parametrization \eqref{eq-alpha} is merely a
+linear change of coordinates. Stress from \eqref{eq-stressx} is the special case
+in which each of the $np$ matrices $Y_s$ have a single element equal to one with
+all other elements equal to zero. If $m<np$ the constraint can be used to impose
+restrictions on the configuration (@bentler_weeks_78, @deleeuw_heiser_C_80).
+
+The parametrization in \eqref{eq-alpha} makes the distances, and thus stress, a
+function of $\alpha$. We will overload the symbols $\sigma$ and $d$, and define
+stress as
+\begin{equation}
+\sigma(\alpha):=
+\frac12\mathop{\sum}_{1\leq i<j\leq n} w_{ij}(\delta_{ij}-d_{ij}(\alpha))^2,
+\label{eq-stressa}
+\end{equation}
+
+\sectionbreak
 
 # Notation
 
-## Configuration Space
+First some convenient notation in configuration space, introduced in
+@deleeuw_C_77. Vector $e_i$ has $n$ elements, with element $i$ equal to $+1$,
+and all other elements zero. 
+$$
+A_{ij}:=(e_i-e_j)(e_i-e_j)'
+$$
+$(e_i-e_j)(e_i-e_j)'$, which
+means elements $(i,i)$ and $(j,j)$ are equal to $+1$, while $(i,j)$ and $(j,i)$
+are $-1$.
 
-First some convenient notation, first introduced in @deleeuw_C_77. Vector $e_i$
-has $n$ elements, with element $i$ equal to $+1$, and all other elements zero.
-$A_{ij}$ is the matrix $(e_i-e_j)(e_i-e_j)'$, which means elements $(i,i)$ and
-$(j,j)$ are equal to $+1$, while $(i,j)$ and $(j,i)$ are $-1$. Thus
+$$
+\{H_{ij}\}_{st}:=\text{tr}\ Y_s'A_{ij}Y_t
+$$
+ Thus
 \begin{equation}
-d_{ij}^2(X)=(e_i-e_i)'XX'(e_i-e_j)=\text{tr}\ X'A_{ij}X=\text{tr}\ A_{ij}C,
+d_{ij}^2(\alpha)=\text{tr}\ \alpha'A_{ij}\alpha,
 \label{eq-anot}
 \end{equation}
-with $C=XX'$.
 
 We also define
 \begin{equation}
@@ -138,56 +190,53 @@ proportional to $e$, the vector with all elements equal to $+1$. The matrix
 $B(X)$ is also symmetric, positive semi-definite, and doubly-centered for each
 $X$. It may not be irreducible, because, for example, $B(0)=0$.
 
-## Coefficient Space
-
-Suppose $Y_1,\cdots,Y_m$, with $m\leq np$, are linear independent elements of
-configuration space $\mathbb{R}^{n\times p}$. They define a basis for the
-$m$-dimensional subspace $\mathbb{S}$.
-
-We now require that the configuration $X$ is a linear combination of the
-matrices in the basis, i.e. that $X\in\mathbb{S}$. If $m=np$ then this
-requirement is not restriction and merely involves a linear change of
-coordinates. But in general the constraint
+For the notation in coefficient space we need the square, symmetric, positive
+semi-definite matrices $A_{ij}$ of order $m$ with elements
 \begin{equation}
-X=\sum_{s=1}^m\alpha_s Y_s
+\{A_{ij}\}_{st}:=\text{tr}\ Y_s'A_{ij}Y_t.\label{eq-atildef}
 \end{equation}
-can be used to impose restrictions on the configuration (@bentler_weeks_78,
-@deleeuw_heiser_C_80).
-
-We define *coefficient space* $\mathbb{R}^m$ as the space of all vectors
-$\alpha$. To define stress in coefficient space we need the square, symmetric,
-positive semi-definite matrices $\tilde A_{ij}$ of order $m$ with elements
+The squared distance equals
 \begin{equation}
-\tilde a^{ij}_{st}:=\text{tr}\ Y_s'A_{ij}Y_t.\label{eq-atildef}
+d_{ij}^2(\alpha):=\alpha'A_{ij}\alpha.\label{eq-dtildef}
 \end{equation}
-Now $d_{ij}^2(X)$ equals
+Note that we continue to overload symbols such as $A_{ij}$ and $d$. The same is
+true for $V$ from \eqref{eq-vdef}, which we define in coefficient space by using
+definition \eqref{eq-atildef}, and for $\tilde B(\alpha)$ from \eqref{eq-bdef}.
+In coefficient space
 \begin{equation}
-\tilde d_{ij}^2(\alpha):=\alpha'\tilde A_{ij}\alpha.\label{eq-dtildef}
+\sigma(\alpha):=
+1-\alpha'B(\alpha)\alpha+\frac12\alpha'V\alpha.\label{eq-stildef}
 \end{equation}
-Define $\tilde V$ as in \eqref{eq-vdef} and $\tilde B(\alpha)$ as in
-\eqref{eq-bdef}, but with $\tilde A_{ij}$ instead of $A_{ij}$. Thus $\sigma(X)$
-equals
-\begin{equation}
-\tilde \sigma(\alpha):=1-\alpha'\tilde B(\alpha)\alpha+\frac12\alpha'\tilde V\alpha.\label{eq-stildef}
-\end{equation}
-and the MDS problem in coefficient space is to minimize \eqref{eq-stildef} over
+and the MDS problem is to minimize \eqref{eq-stildef} over
 $\alpha\in\mathbb{R}^m$.
 
-# SMACOF
+\sectionbreak
 
-## Configuration Space
+# SMACOF
 
 Define the *Guttman Transform* of configuration $X$ as
 \begin{equation}
 \Gamma(X):=V^+B(X)X
-\label{eq-guttman}
+\label{eq-guttmanx}
 \end{equation}
-The *SMACOF algorithm* is, with iteration counter $k\geq 1$,
+The *SMACOF algorithm* in configuration space is, with iteration counter
+$k\geq 1$,
 \begin{equation}
 X^{(k)}=\Gamma(X^{(k-1)})=\Gamma^k(X^{0}),
-\label{eq-smacof}
+\label{eq-smacofx}
 \end{equation}
 where $\Gamma^0=I$ and $\Gamma^k(X):=\Gamma(\Gamma^{k-1}(X))$.
+
+In coefficient space the Guttman Transform is
+\begin{equation}
+\Gamma(\alpha):=V^+B(\alpha)\alpha
+\label{eq-guttmana}
+\end{equation}
+The *SMACOF algorithm* in configuration space is
+\begin{equation}
+\alpha^{(k)}=\Gamma(\alpha^{(k-1)})=\Gamma^k(\alpha^{0}).
+\label{eq-smacofx}
+\end{equation}
 
 @deleeuw_C_77 shows that the SMACOF iterations \eqref{eq-smacof} tend (in a
 specific sense described later in this paper) to a fixed point of the Guttman
@@ -217,6 +266,8 @@ The *SMACOF algorithm* is
 \alpha^{(k+1)}=\tilde\Gamma(\alpha^{(k)})=\tilde\Gamma^k(\alpha^{0})
 \label{eq-smacofa}
 \end{equation}
+
+\sectionbreak
 
 # Global Convergence of SMACOF
 
@@ -270,6 +321,8 @@ columns to $X$ produces a saddle point $[X\mid 0]$ for (p+q)MDS. At saddle
 points there are always directions in which stress can be decreased, and
 consequently the SMACOF algorithm with enough iterations will eventually get
 close to a continuum of local minima.
+
+\sectionbreak
 
 # Local Convergence of SMACOF
 

@@ -281,7 +281,7 @@
 
 \title{Convergence of SMACOF}
 \author{Jan de Leeuw}
-\date{July 2, 2026}
+\date{July 9, 2026}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -296,44 +296,99 @@ TBD
 
 \section{Introduction}\label{introduction}
 
-In (Euclidean, metric, least squares) multidimensional scaling (MDS) we
-minimize the real valued loss function \begin{equation}
+The components of a (Euclidean, metric, least squares) multidimensional
+scaling (MDS) problem are
+
+\begin{itemize}
+\tightlist
+\item
+  a symmetric, non-negative, and
+  hollow\footnote{A hollow matrix has a zero diagonal.} matrix
+  \(\Delta\) of \emph{dissimilarities},
+\item
+  a symmetric, non-negative, and hollow matrix \(W\) of \emph{weights},
+\item
+  a list of \(m\) \emph{configurations} \(Y_1,\cdots,Y_m\) of dimension
+  \(n\times r\).
+\end{itemize}
+
+we minimize the real valued loss
+function\footnote{The symbol $:=$ is used for definitions.}
+\begin{equation}
 \sigma(X):=\frac12\mathop{\sum}_{1\leq i<j\leq n} w_{ij}(\delta_{ij}-d_{ij}(X))^2,
-(\#eq:stress)
+\label{eq-stressx}
 \end{equation} defined on \(\mathbb{R}^{n\times p}\), the space of all
-\(n\times p\) matrices. We follow Kruskal
-(\citeproc{ref-kruskal_64a}{1964}) and call \(\sigma(X)\) the
-\emph{stress} of \emph{configuration} \(X\). Minimizing stress over
-p-dimensional configurations is the MDS problem.
+\(n\times p\) matrices. We call \(\sigma(X)\) the \emph{stress} of
+\emph{configuration} \(X\). Minimizing stress over all \(p-\)dimensional
+configurations (over \emph{configuration space}) is a classical metric
+MDS problem (Kruskal (\citeproc{ref-kruskal_64a}{1964a}), Kruskal
+(\citeproc{ref-kruskal_64b}{1964b})). The parameters of the problem are
+the \(np\) elements of \(X\).
 
-In @ref(eq:stress) the matrices of \emph{weights} \(W=\{w_{ij}\}\) and
-\emph{dissimilarities} \(\Delta=\{\delta_{ij}\}\) are symmetric,
-non-negative, and hollow (zero diagonal). The matrix-valued function
-\(D(X)=\{d_{ij}(X)\}\) contains Euclidean distances between the rows of
-the \emph{configuration} \(X\), which are the coordinates of \(n\)
-\emph{points} in \(\mathbb{R}^p\). Thus \(D(X)\) is also symmetric,
-non-negative, and hollow.
+In \eqref{eq-stressx} the matrices of \emph{weights} \(W=\{w_{ij}\}\)
+and \emph{dissimilarities} \(\Delta=\{\delta_{ij}\}\) are . The
+matrix-valued function \(D(X)=\{d_{ij}(X)\}\) contains Euclidean
+distances between the rows of the configuration \(X\), which are the
+coordinates of \(n\) \emph{points} in \(\mathbb{R}^p\). Thus \(D(X)\) is
+also symmetric, non-negative, and hollow.
 
-We also follow De Leeuw (\citeproc{ref-deleeuw_C_77}{1977}) and assume,
-without any real loss of generality, that \(W\) is \emph{irreducible},
-so that the MDS problem does not separate into a number of smaller MDS
-problems. For symmetric matrices irreducibility means that we cannot
-find a permutation matrix \(\Pi\) such that \(\Pi'W\Pi\) is block
-diagonal, i.e.~the direct sum of a number of smaller matrices.
+We also assume, without any real loss of generality, that \(W\) is
+\emph{irreducible}, so that the MDS problem does not separate into a
+number of smaller MDS problems (De Leeuw
+(\citeproc{ref-deleeuw_C_77}{1977})). For the symmetric matrix \(W\)
+irreducibility means that we cannot find a permutation of rows and
+columns that make the permuted \(W\) block-diagonal, i.e.~the direct
+sum\footnote{The direct sum of a number of matrices $X_1,\dots,X_m$ is a block-diagonal matrix with the $m$ matrices as diagonal submatrices.}
+of a number of smaller matrices.
+
+\(s,t=1,\cdots,m\) \(p,q=1,\cdots,r\) \(i,j,k,l=1,\cdots,n\)
+
+For our purposes a slightly more general parametrization of stress is
+more convenient. Suppose \(Y_1,\cdots,Y_m\), with \(m\leq np\), are
+linear independent elements of configuration space
+\(\mathbb{R}^{n\times p}\). We now parametrize the configuration \(X\)
+as a linear combination \begin{equation}
+X=\sum_{s=1}^m\alpha_s Y_s\label{eq-alpha}
+\end{equation} of the matrices \(Y_s\) in the basis. We will study a
+version of smacof parametrized using \emph{coefficient space}
+\(\mathbb{R}^m\), the space of all vectors with the coefficients
+\(\alpha\) of the linear combinations.
+
+If \(m=np\) then the alternative parametrization \eqref{eq-alpha} is
+merely a linear change of coordinates. Stress from \eqref{eq-stressx} is
+the special case in which each of the \(np\) matrices \(Y_s\) have a
+single element equal to one with all other elements equal to zero. If
+\(m<np\) the constraint can be used to impose restrictions on the
+configuration (Bentler and Weeks
+(\citeproc{ref-bentler_weeks_78}{1978}), De Leeuw and Heiser
+(\citeproc{ref-deleeuw_heiser_C_80}{1980})).
+
+The parametrization in \eqref{eq-alpha} makes the distances, and thus
+stress, a function of \(\alpha\). We will overload the symbols
+\(\sigma\) and \(d\), and define stress as \begin{equation}
+\sigma(\alpha):=
+\frac12\mathop{\sum}_{1\leq i<j\leq n} w_{ij}(\delta_{ij}-d_{ij}(\alpha))^2,
+\label{eq-stressa}
+\end{equation}
+
+\sectionbreak
 
 \section{Notation}\label{notation}
 
-\subsection{Configuration Space}\label{configuration-space}
+First some convenient notation in configuration space, introduced in De
+Leeuw (\citeproc{ref-deleeuw_C_77}{1977}). Vector \(e_i\) has \(n\)
+elements, with element \(i\) equal to \(+1\), and all other elements
+zero. \[
+A_{ij}:=(e_i-e_j)(e_i-e_j)'
+\] \((e_i-e_j)(e_i-e_j)'\), which means elements \((i,i)\) and \((j,j)\)
+are equal to \(+1\), while \((i,j)\) and \((j,i)\) are \(-1\).
 
-First some convenient notation, first introduced in De Leeuw
-(\citeproc{ref-deleeuw_C_77}{1977}). Vector \(e_i\) has \(n\) elements,
-with element \(i\) equal to \(+1\), and all other elements zero.
-\(A_{ij}\) is the matrix \((e_i-e_j)(e_i-e_j)'\), which means elements
-\((i,i)\) and \((j,j)\) are equal to \(+1\), while \((i,j)\) and
-\((j,i)\) are \(-1\). Thus \begin{equation}
-d_{ij}^2(X)=(e_i-e_i)'XX'(e_i-e_j)=\text{tr}\ X'A_{ij}X=\text{tr}\ A_{ij}C,
+\[
+\{H_{ij}\}_{st}:=\text{tr}\ Y_s'A_{ij}Y_t
+\] Thus \begin{equation}
+d_{ij}^2(\alpha)=\text{tr}\ \alpha'A_{ij}\alpha,
 \label{eq-anot}
-\end{equation} with \(C=XX'\).
+\end{equation}
 
 We also define \begin{equation}
 V:=\mathop{\sum}_{1\leq i<j\leq n}w_{ij}A_{ij},
@@ -365,48 +420,45 @@ are all proportional to \(e\), the vector with all elements equal to
 and doubly-centered for each \(X\). It may not be irreducible, because,
 for example, \(B(0)=0\).
 
-\subsection{Coefficient Space}\label{coefficient-space}
+For the notation in coefficient space we need the square, symmetric,
+positive semi-definite matrices \(A_{ij}\) of order \(m\) with elements
+\begin{equation}
+\{A_{ij}\}_{st}:=\text{tr}\ Y_s'A_{ij}Y_t.\label{eq-atildef}
+\end{equation} The squared distance equals \begin{equation}
+d_{ij}^2(\alpha):=\alpha'A_{ij}\alpha.\label{eq-dtildef}
+\end{equation} Note that we continue to overload symbols such as
+\(A_{ij}\) and \(d\). The same is true for \(V\) from \eqref{eq-vdef},
+which we define in coefficient space by using definition
+\eqref{eq-atildef}, and for \(\tilde B(\alpha)\) from \eqref{eq-bdef}.
+In coefficient space \begin{equation}
+\sigma(\alpha):=
+1-\alpha'B(\alpha)\alpha+\frac12\alpha'V\alpha.\label{eq-stildef}
+\end{equation} and the MDS problem is to minimize \eqref{eq-stildef}
+over \(\alpha\in\mathbb{R}^m\).
 
-Suppose \(Y_1,\cdots,Y_m\), with \(m\leq np\), are linear independent
-elements of configuration space \(\mathbb{R}^{n\times p}\). They define
-a basis for the \(m\)-dimensional subspace \(\mathbb{S}\).
-
-We now require that the configuration \(X\) is a linear combination of
-the matrices in the basis, i.e.~that \(X\in\mathbb{S}\). If \(m=np\)
-then this requirement is not restriction and merely involves a linear
-change of coordinates. But in general the constraint \begin{equation}
-X=\sum_{s=1}^m\alpha_s Y_s
-\end{equation} can be used to impose restrictions on the configuration
-(Bentler and Weeks (\citeproc{ref-bentler_weeks_78}{1978}), De Leeuw and
-Heiser (\citeproc{ref-deleeuw_heiser_C_80}{1980})).
-
-We define \emph{coefficient space} \(\mathbb{R}^m\) as the space of all
-vectors \(\alpha\). To define stress in coefficient space we need the
-square, symmetric, positive semi-definite matrices \(\tilde A_{ij}\) of
-order \(m\) with elements \begin{equation}
-\tilde a^{ij}_{st}:=\text{tr}\ Y_s'A_{ij}Y_t.\label{eq-atildef}
-\end{equation} Now \(d_{ij}^2(X)\) equals \begin{equation}
-\tilde d_{ij}^2(\alpha):=\alpha'\tilde A_{ij}\alpha.\label{eq-dtildef}
-\end{equation} Define \(\tilde V\) as in \eqref{eq-vdef} and
-\(\tilde B(\alpha)\) as in \eqref{eq-bdef}, but with \(\tilde A_{ij}\)
-instead of \(A_{ij}\). Thus \(\sigma(X)\) equals \begin{equation}
-\tilde \sigma(\alpha):=1-\alpha'\tilde B(\alpha)\alpha+\frac12\alpha'\tilde V\alpha.\label{eq-stildef}
-\end{equation} and the MDS problem in coefficient space is to minimize
-\eqref{eq-stildef} over \(\alpha\in\mathbb{R}^m\).
+\sectionbreak
 
 \section{SMACOF}\label{smacof}
-
-\subsection{Configuration Space}\label{configuration-space-1}
 
 Define the \emph{Guttman Transform} of configuration \(X\) as
 \begin{equation}
 \Gamma(X):=V^+B(X)X
-\label{eq-guttman}
-\end{equation} The \emph{SMACOF algorithm} is \begin{equation}
-X^{(k+1)}=\Gamma(X^{(k)})=\Gamma^k(X^{0}),
-\label{eq-smacof}
+\label{eq-guttmanx}
+\end{equation} The \emph{SMACOF algorithm} in configuration space is,
+with iteration counter \(k\geq 1\), \begin{equation}
+X^{(k)}=\Gamma(X^{(k-1)})=\Gamma^k(X^{0}),
+\label{eq-smacofx}
 \end{equation} where \(\Gamma^0=I\) and
 \(\Gamma^k(X):=\Gamma(\Gamma^{k-1}(X))\).
+
+In coefficient space the Guttman Transform is \begin{equation}
+\Gamma(\alpha):=V^+B(\alpha)\alpha
+\label{eq-guttmana}
+\end{equation} The \emph{SMACOF algorithm} in configuration space is
+\begin{equation}
+\alpha^{(k)}=\Gamma(\alpha^{(k-1)})=\Gamma^k(\alpha^{0}).
+\label{eq-smacofx}
+\end{equation}
 
 De Leeuw (\citeproc{ref-deleeuw_C_77}{1977}) shows that the SMACOF
 iterations \eqref{eq-smacof} tend (in a specific sense described later
@@ -417,18 +469,18 @@ the derivative of stress vanishes. Also \(V^+B(X)X=X\) shows that the
 columns of \(X\) are eigenvectors of \(V^+B(X)\), with eigenvalues equal
 to one.
 
-The algorithm was proposed by Guttman (\citeproc{ref-guttman_68}{1968}),
-by differentiating stress and setting the derivatives equal to zero.
-This derivation ignores the problem that stress is not differentiable if
-one or more distances are zero, and it also does not say anything about
-convergence of the algorithm. In De Leeuw
-(\citeproc{ref-deleeuw_C_77}{1977}) and De Leeuw and Heiser
+The algorithm (without weights) was proposed by Guttman
+(\citeproc{ref-guttman_68}{1968}), by differentiating stress and setting
+the derivatives equal to zero. This derivation ignores the problem that
+stress is not differentiable if one or more distances are zero, and it
+also does not say anything about convergence of the algorithm. In De
+Leeuw (\citeproc{ref-deleeuw_C_77}{1977}) and De Leeuw and Heiser
 (\citeproc{ref-deleeuw_heiser_C_77}{1977}) a new derivation of the
 algorithm was given, using a majorization argument based on the
 Cauchy-Schwarz inequality. This make it possible to avoid problems with
 differentiability, and it leads to a simple convergence proof.
 
-\subsection{Coefficient Space}\label{coefficient-space-1}
+\subsection{Coefficient Space}\label{coefficient-space}
 
 Define the \emph{Guttman Transform} of coefficients \(\alpha\) as
 \begin{equation}
@@ -438,6 +490,8 @@ Define the \emph{Guttman Transform} of coefficients \(\alpha\) as
 \alpha^{(k+1)}=\tilde\Gamma(\alpha^{(k)})=\tilde\Gamma^k(\alpha^{0})
 \label{eq-smacofa}
 \end{equation}
+
+\sectionbreak
 
 \section{Global Convergence of
 SMACOF}\label{global-convergence-of-smacof}
@@ -507,6 +561,8 @@ columns to \(X\) produces a saddle point \([X\mid 0]\) for (p+q)MDS. At
 saddle points there are always directions in which stress can be
 decreased, and consequently the SMACOF algorithm with enough iterations
 will eventually get close to a continuum of local minima.
+
+\sectionbreak
 
 \section{Local Convergence of SMACOF}\label{local-convergence-of-smacof}
 
@@ -1072,9 +1128,13 @@ Smallest Coordinate Space for a Configuration of Points}.''}
 \emph{Psychometrika} 33: 469--506.
 
 \bibitem[\citeproctext]{ref-kruskal_64a}
-Kruskal, Joseph B. 1964. {``{Multidimensional Scaling by Optimizing
+Kruskal, Joseph B. 1964a. {``{Multidimensional Scaling by Optimizing
 Goodness of Fit to a Nonmetric Hypothesis}.''} \emph{Psychometrika} 29:
 1--27.
+
+\bibitem[\citeproctext]{ref-kruskal_64b}
+Kruskal, Joseph B. 1964b. {``{Nonmetric Multidimensional Scaling: a
+Numerical Method}.''} \emph{Psychometrika} 29: 115--29.
 
 \bibitem[\citeproctext]{ref-ortega_rheinboldt_70}
 Ortega, J. M., and W. C. Rheinboldt. 1970. \emph{{Iterative Solution of
