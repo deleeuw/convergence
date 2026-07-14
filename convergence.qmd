@@ -70,107 +70,97 @@ The components of a (Euclidean, metric, least squares, r-dimensional) multidimen
 problem are
 
 * a symmetric, non-negative, and
-hollow\footnote{A hollow matrix has a zero diagonal.} matrix $\Delta$ of *dissimilarities*,
-* a symmetric, non-negative, and hollow matrix $W$ of *weights*,
-* a list of $m$ *configurations* $Y_1,\cdots,Y_m$ of dimension $n\times r$.
+hollow\footnote{A hollow matrix has a zero diagonal.} matrix $\Delta$ of order $n$ with *dissimilarities*,
+* a symmetric, non-negative, hollow, and irreducible\footnote{A matrix is irreducible if there is no permutation of rows and columns that makes it
+block-diagonal.} matrix $W$ of order $n$ with *weights*,
+* a *basis* of $m$ linearly independent *configurations* $Y_1,\cdots,Y_m$ of dimension $n\times r$.
 
+We define *configuration space* as the set of all linear combinations of the $Y_s$, i.e.
+the set of all $n\times r$ matrices $X$ for which there is an m-element vector $\beta$
+such that
+$\smash{X(\beta)=\sum_{s=1}^m\beta_sY_s}$.
 
-
-we minimize
-the real valued loss function\footnote{The symbol $:=$ is used for definitions.}
+The Euclidean distance between rows $i$ and $j$ of $X(\beta)$ is
+\footnote{The symbol $:=$ is used for definitions.} 
+$$
+d_{ij}(\beta):=\sqrt{(x_{i}(\beta)-x_{j}(\beta))'(x_{i}(\beta)-x_{j}(\beta))},
+$$
+The MDS problem is  minimizing the real valued loss function
 \begin{equation}
-\sigma(X):=\frac12\mathop{\sum}_{1\leq i<j\leq n} w_{ij}(\delta_{ij}-d_{ij}(X))^2,
+\sigma(\beta):=\frac12\mathop{\sum}_{1\leq i<j\leq n} w_{ij}(\delta_{ij}-d_{ij}(\beta))^2,
 \label{eq-stressx}
 \end{equation}
-defined on $\mathbb{R}^{n\times p}$, the space of all $n\times p$ matrices. We
-call $\sigma(X)$ the *stress* of *configuration* $X$. Minimizing stress over all
-$p-$dimensional configurations (over *configuration space*) is a classical metric
-MDS problem (@kruskal_64a, @kruskal_64b). The parameters of the problem are the
-$np$ elements of $X$.
+over $\beta$ in the *coefficient space* $\mathbb{R}^m$.
+We call $\sigma(\beta)$ the *stress* of *configuration* $X(\beta)$ 
+(@kruskal_64a, @kruskal_64b). 
 
-In \eqref{eq-stressx} the matrices of *weights* $W=\{w_{ij}\}$ and
-*dissimilarities* $\Delta=\{\delta_{ij}\}$ are . The matrix-valued
-function $D(X)=\{d_{ij}(X)\}$ contains Euclidean distances between the rows of
-the configuration $X$, which are the coordinates of $n$ *points* in
-$\mathbb{R}^p$. Thus $D(X)$ is also symmetric, non-negative, and hollow.
 
-We also assume, without any real loss of generality, that $W$ is *irreducible*,
-so that the MDS problem does not separate into a number of smaller MDS problems
-(@deleeuw_C_77). For the symmetric matrix $W$ irreducibility means that we
-cannot find a permutation of rows and columns that make the permuted $W$
-block-diagonal, i.e. the direct
-sum\footnote{The direct sum of a number of matrices $X_1,\dots,X_m$ is a block-diagonal matrix with the $m$ matrices as diagonal submatrices.}
-of a number of smaller matrices.
 
-$s,t=1,\cdots,m$
-$p,q=1,\cdots,r$
-$i,j,k,l=1,\cdots,n$
 
-For our purposes a slightly more general parametrization of stress is more
-convenient. Suppose $Y_1,\cdots,Y_m$, with $m\leq np$, are linear independent
-elements of configuration space $\mathbb{R}^{n\times p}$. We now parametrize the
-configuration $X$ as a linear combination
-\begin{equation}
-X=\sum_{s=1}^m\alpha_s Y_s\label{eq-alpha}
-\end{equation}
-of the matrices $Y_s$ in the basis. We will study a version of smacof
-parametrized using *coefficient space* $\mathbb{R}^m$, the space of all vectors
-with the coefficients $\alpha$ of the linear combinations.
 
-If $m=np$ then the alternative parametrization \eqref{eq-alpha} is merely a
-linear change of coordinates. Stress from \eqref{eq-stressx} is the special case
+
+e parametrization \eqref{eq-alpha} is merely a
+linear change of coordinatesIf $m=np$ then the alternativ. Stress from \eqref{eq-stressx} is the special case
 in which each of the $np$ matrices $Y_s$ have a single element equal to one with
 all other elements equal to zero. If $m<np$ the constraint can be used to impose
 restrictions on the configuration (@bentler_weeks_78, @deleeuw_heiser_C_80).
 
-The parametrization in \eqref{eq-alpha} makes the distances, and thus stress, a
-function of $\alpha$. We will overload the symbols $\sigma$ and $d$, and define
-stress as
-\begin{equation}
-\sigma(\alpha):=
-\frac12\mathop{\sum}_{1\leq i<j\leq n} w_{ij}(\delta_{ij}-d_{ij}(\alpha))^2,
-\label{eq-stressa}
-\end{equation}
+
 
 \sectionbreak
 
 # Notation
 
+$s,t=1,\cdots,m$ coefficients, basis configurations
+
+$p,q=1,\cdots,r$ dimensions
+
+$i,j,k,l=1,\cdots,n$ objects, points
+
 First some convenient notation in configuration space, introduced in
 @deleeuw_C_77. Vector $e_i$ has $n$ elements, with element $i$ equal to $+1$,
 and all other elements zero. 
 $$
-A_{ij}:=(e_i-e_j)(e_i-e_j)'
+A_{ij}:=(e_i-e_j)(e_i-e_j)',
 $$
-$(e_i-e_j)(e_i-e_j)'$, which
-means elements $(i,i)$ and $(j,j)$ are equal to $+1$, while $(i,j)$ and $(j,i)$
+ which means elements $(i,i)$ and $(j,j)$ are equal to $+1$, while $(i,j)$ and $(j,i)$
 are $-1$.
 
+Also define
 $$
 \{H_{ij}\}_{st}:=\text{tr}\ Y_s'A_{ij}Y_t
 $$
+ It is of some interest to look at the special case in which $Y_s=e_ke_p'$ and $Y_t=e_le_q'$. Then
+ $$\{H_{ij}\}_{st}=\text{tr}\ e_pe_k'(e_i-e_j)(e_i-e_j)'e_le_q'=\delta^{pq}(\delta^{ik}-\delta^{jk})(\delta^{il}-\delta^{jl})
+ $$
+ 
  Thus
 \begin{equation}
-d_{ij}^2(\alpha)=\text{tr}\ \alpha'A_{ij}\alpha,
+d_{ij}^2(\alpha)=\text{tr}\ \alpha'H_{ij}\alpha,
 \label{eq-anot}
 \end{equation}
 
 We also define
 \begin{equation}
-V:=\mathop{\sum}_{1\leq i<j\leq n}w_{ij}A_{ij},
+V:=\mathop{\sum}_{1\leq i<j\leq n}w_{ij}H_{ij},
 \label{eq-vdef}
 \end{equation}
 and the matrix-valued function $B$ with
 \begin{equation}
-B(X):=\mathop{\sum}_{1\leq i<j\leq n}w_{ij}r_{ij}(X)A_{ij},
+B(\alpha):=\mathop{\sum}_{1\leq i<j\leq n}w_{ij}r_{ij}(\alpha)H_{ij},
 \label{eq-bdef}
 \end{equation}
 where
 \begin{equation}
-r_{ij}(X):=\begin{cases}\frac{\delta_{ij}}{d_{ij}(X)}&\text{ if }d_{ij}(X)>0,\\
-0&\text{ if }d_{ij}(X)=0.\end{cases}\label{eq-rdef}
+r_{ij}(\alpha):=\begin{cases}\frac{\delta_{ij}}{d_{ij}(\alpha)}&\text{ if }d_{ij}(\alpha)>0,\\
+0&\text{ if }d_{ij}(\alpha)=0.\end{cases}\label{eq-rdef}
 \end{equation}
 
+It is of some interest to look at the special case in which $Y_s=e_ke_p'$ and $Y_t=e_le_q'$. Then
+ $$\{H_{ij}\}_{st}=\text{tr}\ e_pe_k'(e_i-e_j)(e_i-e_j)'e_le_q'=\delta^{pq}(\delta^{ik}-\delta^{jk})(\delta^{il}-\delta^{jl})
+ $$and thus
+ $$v_{st}=\delta^{pq}\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}(\delta^{ik}-\delta^{jk})(\delta^{il}-\delta^{jl})
+ $$
 If we assume, without loss of generality, that
 \begin{equation}
 \frac12\mathop{\sum}_{1\leq i<j\leq n}w_{ij}\delta_{ij}^2=1,

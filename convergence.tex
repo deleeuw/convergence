@@ -296,84 +296,60 @@ TBD
 
 \section{Introduction}\label{introduction}
 
-The components of a (Euclidean, metric, least squares) multidimensional
-scaling (MDS) problem are
+The components of a (Euclidean, metric, least squares, r-dimensional)
+multidimensional scaling (MDS) problem are
 
 \begin{itemize}
 \tightlist
 \item
   a symmetric, non-negative, and
   hollow\footnote{A hollow matrix has a zero diagonal.} matrix
-  \(\Delta\) of \emph{dissimilarities},
+  \(\Delta\) of order \(n\) with \emph{dissimilarities},
 \item
-  a symmetric, non-negative, and hollow matrix \(W\) of \emph{weights},
+  a symmetric, non-negative, hollow, and
+  irreducible\footnote{A matrix is irreducible if there is no permutation of rows and columns that makes it
+  block-diagonal.} matrix \(W\) of order \(n\) with \emph{weights},
 \item
-  a list of \(m\) \emph{configurations} \(Y_1,\cdots,Y_m\) of dimension
-  \(n\times r\).
+  a \emph{basis} of \(m\) linearly independent \emph{configurations}
+  \(Y_1,\cdots,Y_m\) of dimension \(n\times r\).
 \end{itemize}
 
-we minimize the real valued loss
-function\footnote{The symbol $:=$ is used for definitions.}
-\begin{equation}
-\sigma(X):=\frac12\mathop{\sum}_{1\leq i<j\leq n} w_{ij}(\delta_{ij}-d_{ij}(X))^2,
+We define \emph{configuration space} as the set of all linear
+combinations of the \(Y_s\), i.e. the set of all \(n\times r\) matrices
+\(X\) for which there is an m-element vector \(\beta\) such that
+\(\smash{X(\beta)=\sum_{s=1}^m\beta_sY_s}\).
+Define\footnote{The symbol $:=$ is used for definitions.}
+
+\[
+d_{ij}(\beta):=\sqrt{(x_{i}(\beta)-x_{j}(\beta))'(x_{i}(\beta)-x_{j}(\beta))},
+\] the Euclidean distance between rows \(i\) and \(j\) of \(X(\beta)\).
+We minimize the real valued loss function \begin{equation}
+\sigma(\beta):=\frac12\mathop{\sum}_{1\leq i<j\leq n} w_{ij}(\delta_{ij}-d_{ij}(\beta))^2,
 \label{eq-stressx}
-\end{equation} defined on \(\mathbb{R}^{n\times p}\), the space of all
-\(n\times p\) matrices. We call \(\sigma(X)\) the \emph{stress} of
-\emph{configuration} \(X\). Minimizing stress over all \(p-\)dimensional
-configurations (over \emph{configuration space}) is a classical metric
-MDS problem (Kruskal (\citeproc{ref-kruskal_64a}{1964a}), Kruskal
-(\citeproc{ref-kruskal_64b}{1964b})). The parameters of the problem are
-the \(np\) elements of \(X\).
+\end{equation} over \(\beta\) in the \emph{coefficient space}
+\(\mathbb{R}^m\). We call \(\sigma(\beta)\) the \emph{stress} of
+\emph{configuration} \(X(\beta)\) (Kruskal
+(\citeproc{ref-kruskal_64a}{1964a}), Kruskal
+(\citeproc{ref-kruskal_64b}{1964b})).
 
-In \eqref{eq-stressx} the matrices of \emph{weights} \(W=\{w_{ij}\}\)
-and \emph{dissimilarities} \(\Delta=\{\delta_{ij}\}\) are . The
-matrix-valued function \(D(X)=\{d_{ij}(X)\}\) contains Euclidean
-distances between the rows of the configuration \(X\), which are the
-coordinates of \(n\) \emph{points} in \(\mathbb{R}^p\). Thus \(D(X)\) is
-also symmetric, non-negative, and hollow.
-
-We also assume, without any real loss of generality, that \(W\) is
-\emph{irreducible}, so that the MDS problem does not separate into a
-number of smaller MDS problems (De Leeuw
-(\citeproc{ref-deleeuw_C_77}{1977})). For the symmetric matrix \(W\)
-irreducibility means that we cannot find a permutation of rows and
-columns that make the permuted \(W\) block-diagonal, i.e.~the direct
-sum\footnote{The direct sum of a number of matrices $X_1,\dots,X_m$ is a block-diagonal matrix with the $m$ matrices as diagonal submatrices.}
-of a number of smaller matrices.
-
-\(s,t=1,\cdots,m\) \(p,q=1,\cdots,r\) \(i,j,k,l=1,\cdots,n\)
-
-For our purposes a slightly more general parametrization of stress is
-more convenient. Suppose \(Y_1,\cdots,Y_m\), with \(m\leq np\), are
-linear independent elements of configuration space
-\(\mathbb{R}^{n\times p}\). We now parametrize the configuration \(X\)
-as a linear combination \begin{equation}
-X=\sum_{s=1}^m\alpha_s Y_s\label{eq-alpha}
-\end{equation} of the matrices \(Y_s\) in the basis. We will study a
-version of smacof parametrized using \emph{coefficient space}
-\(\mathbb{R}^m\), the space of all vectors with the coefficients
-\(\alpha\) of the linear combinations.
-
-If \(m=np\) then the alternative parametrization \eqref{eq-alpha} is
-merely a linear change of coordinates. Stress from \eqref{eq-stressx} is
-the special case in which each of the \(np\) matrices \(Y_s\) have a
-single element equal to one with all other elements equal to zero. If
-\(m<np\) the constraint can be used to impose restrictions on the
-configuration (Bentler and Weeks
+e parametrization \eqref{eq-alpha} is merely a linear change of
+coordinatesIf \(m=np\) then the alternativ. Stress from
+\eqref{eq-stressx} is the special case in which each of the \(np\)
+matrices \(Y_s\) have a single element equal to one with all other
+elements equal to zero. If \(m<np\) the constraint can be used to impose
+restrictions on the configuration (Bentler and Weeks
 (\citeproc{ref-bentler_weeks_78}{1978}), De Leeuw and Heiser
 (\citeproc{ref-deleeuw_heiser_C_80}{1980})).
-
-The parametrization in \eqref{eq-alpha} makes the distances, and thus
-stress, a function of \(\alpha\). We will overload the symbols
-\(\sigma\) and \(d\), and define stress as \begin{equation}
-\sigma(\alpha):=
-\frac12\mathop{\sum}_{1\leq i<j\leq n} w_{ij}(\delta_{ij}-d_{ij}(\alpha))^2,
-\label{eq-stressa}
-\end{equation}
 
 \sectionbreak
 
 \section{Notation}\label{notation}
+
+\(s,t=1,\cdots,m\)
+
+\(p,q=1,\cdots,r\)
+
+\(i,j,k,l=1,\cdots,n\)
 
 First some convenient notation in configuration space, introduced in De
 Leeuw (\citeproc{ref-deleeuw_C_77}{1977}). Vector \(e_i\) has \(n\)
