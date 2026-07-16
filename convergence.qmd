@@ -66,102 +66,75 @@ options(digits = 10)
 
 # Introduction
 
-The components of a (Euclidean, metric, least squares, r-dimensional) multidimensional scaling (MDS) 
-problem are
-
-* a symmetric, non-negative, and
-hollow\footnote{A hollow matrix has a zero diagonal.} matrix $\Delta$ of order $n$ with *dissimilarities*,
-* a symmetric, non-negative, hollow, and irreducible\footnote{A matrix is irreducible if there is no permutation of rows and columns that makes it
-block-diagonal.} matrix $W$ of order $n$ with *weights*,
-* a *basis* of $m$ linearly independent *configurations* $Y_1,\cdots,Y_m$ of dimension $n\times r$.
-
-We define *configuration space* as the set of all linear combinations of the $Y_s$, i.e.
-the set of all $n\times r$ matrices $X$ for which there is an m-element vector $\beta$
-such that
-$\smash{X(\beta)=\sum_{s=1}^m\beta_sY_s}$.
-
-The Euclidean distance between rows $i$ and $j$ of $X(\beta)$ is
-\footnote{The symbol $:=$ is used for definitions.} 
-$$
-d_{ij}(\beta):=\sqrt{(x_{i}(\beta)-x_{j}(\beta))'(x_{i}(\beta)-x_{j}(\beta))},
-$$
-The MDS problem is  minimizing the real valued loss function
+The (Euclidean, metric, least squares, p-dimensional) multidimensional scaling
+(MDS) problem is the minimization of the real valued loss function
+\footnote{The symbol $:=$ is used for definitions.}
 \begin{equation}
-\sigma(\beta):=\frac12\mathop{\sum}_{1\leq i<j\leq n} w_{ij}(\delta_{ij}-d_{ij}(\beta))^2,
+\sigma(X):=\frac12\mathop{\sum}_{1\leq i<j\leq n} w_{ij}(\delta_{ij}-d_{ij}(X))^2,
 \label{eq-stressx}
 \end{equation}
-over $\beta$ in the *coefficient space* $\mathbb{R}^m$.
-We call $\sigma(\beta)$ the *stress* of *configuration* $X(\beta)$ 
-(@kruskal_64a, @kruskal_64b). 
+over *configurations* $X\in\mathcal{X}$, where *configuration space*
+$\mathcal{X}$ is a subset of $\mathbb{R}^{n\times p}$, the space of all
+$n\times p$ matrices, with $1<p<n-1$. If $\mathcal{X}$ is all of
+$\mathbb{R}^{n\times p}$ the MDS problem is *unconstrained*, if $\mathcal{X}$ is
+a proper subset it is *constrained*.
 
+In \eqref{eq-stressx} the *dissimilarities* $\Delta$ and *weights* $W$ are the
+*data* of the problem. Both $\Delta$ and $W$ are symmetric, non-negative, and
+hollow\footnote{A hollow matrix has a zero diagonal.} matrices $\Delta$ of order
+$n$. The $d_{ij}(X)$ are Euclidean distances between rows $x_i$ and $x_j$ of
+$X$. Thus
+\begin{equation}
+d_{ij}(X):=\sqrt{(x_{i}-x_{j})'(x_{i}-x_{j})}.\label{eq-ddef}
+\end{equation}
+We call $\sigma(X)$ the *stress* of configuration $X$ (@kruskal_64a,
+@kruskal_64b). Kruskal does not use weights in his definition and calls our
+\eqref{eq-stressx} *raw stress*. Since he is only interested in non-metric MDS
+his definition of stress (or *normalized stress*) adds the sum of squared
+distances as a denominator in \eqref{eq-stressx}.
 
-
-
-
-
-e parametrization \eqref{eq-alpha} is merely a
-linear change of coordinatesIf $m=np$ then the alternativ. Stress from \eqref{eq-stressx} is the special case
-in which each of the $np$ matrices $Y_s$ have a single element equal to one with
-all other elements equal to zero. If $m<np$ the constraint can be used to impose
-restrictions on the configuration (@bentler_weeks_78, @deleeuw_heiser_C_80).
-
-
+In tthis paper we assume that the dimensionality $p$ satisfies $1<p<n-1$. Both
+$p=1$ and $p=n-1$ are excluded, because these boundary cases of MDS have special
+properties which makes them fundamentally different from MDS for the
+intermediate values of $p$ (@deleeuw_E_23c, @deleeuw_groenen_mair_E_16e). We
+also assume, without loss of generality, that $W$ is *irreducible*, which means
+in this context that the MDS problem does not separate into a number of smaller
+MDS problems that can be solved independently (@deleeuw_C_77).
 
 \sectionbreak
 
 # Notation
 
-$s,t=1,\cdots,m$ coefficients, basis configurations
-
-$p,q=1,\cdots,r$ dimensions
-
-$i,j,k,l=1,\cdots,n$ objects, points
-
-First some convenient notation in configuration space, introduced in
-@deleeuw_C_77. Vector $e_i$ has $n$ elements, with element $i$ equal to $+1$,
-and all other elements zero. 
-$$
-A_{ij}:=(e_i-e_j)(e_i-e_j)',
-$$
- which means elements $(i,i)$ and $(j,j)$ are equal to $+1$, while $(i,j)$ and $(j,i)$
-are $-1$.
-
-Also define
-$$
-\{H_{ij}\}_{st}:=\text{tr}\ Y_s'A_{ij}Y_t
-$$
- It is of some interest to look at the special case in which $Y_s=e_ke_p'$ and $Y_t=e_le_q'$. Then
- $$\{H_{ij}\}_{st}=\text{tr}\ e_pe_k'(e_i-e_j)(e_i-e_j)'e_le_q'=\delta^{pq}(\delta^{ik}-\delta^{jk})(\delta^{il}-\delta^{jl})
- $$
- 
- Thus
+First some convenient notation, introduced in @deleeuw_C_77. A *unit vector*
+$e_i$ has $n$ elements, with element $i$ equal to $+1$, and all other elements
+zero.
 \begin{equation}
-d_{ij}^2(\alpha)=\text{tr}\ \alpha'H_{ij}\alpha,
+  A_{ij}:=(e_i-e_j)(e_i-e_j)',\label{eq-adef}
+\end{equation}
+which means elements $(i,i)$ and $(j,j)$ are equal to $+1$, while $(i,j)$ and
+$(j,i)$ are $-1$. All other elements are zero. Then
+\begin{equation}
+d_{ij}^2(X)=\text{tr}\ X'A_{ij}X,
 \label{eq-anot}
 \end{equation}
 
-We also define
+We also define the matrix
 \begin{equation}
-V:=\mathop{\sum}_{1\leq i<j\leq n}w_{ij}H_{ij},
+V:=\mathop{\sum}_{1\leq i<j\leq n}w_{ij}A_{ij},
 \label{eq-vdef}
 \end{equation}
 and the matrix-valued function $B$ with
 \begin{equation}
-B(\alpha):=\mathop{\sum}_{1\leq i<j\leq n}w_{ij}r_{ij}(\alpha)H_{ij},
+B(X):=\mathop{\sum}_{1\leq i<j\leq n}w_{ij}r_{ij}(X)A_{ij},
 \label{eq-bdef}
 \end{equation}
 where
 \begin{equation}
-r_{ij}(\alpha):=\begin{cases}\frac{\delta_{ij}}{d_{ij}(\alpha)}&\text{ if }d_{ij}(\alpha)>0,\\
-0&\text{ if }d_{ij}(\alpha)=0.\end{cases}\label{eq-rdef}
+r_{ij}(X):=\begin{cases}\frac{\delta_{ij}}{d_{ij}(X)}&\text{ if }d_{ij}(X)>0,\\
+0&\text{ if }d_{ij}(X)=0.\end{cases}\label{eq-rdef}
 \end{equation}
 
-It is of some interest to look at the special case in which $Y_s=e_ke_p'$ and $Y_t=e_le_q'$. Then
- $$\{H_{ij}\}_{st}=\text{tr}\ e_pe_k'(e_i-e_j)(e_i-e_j)'e_le_q'=\delta^{pq}(\delta^{ik}-\delta^{jk})(\delta^{il}-\delta^{jl})
- $$and thus
- $$v_{st}=\delta^{pq}\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}(\delta^{ik}-\delta^{jk})(\delta^{il}-\delta^{jl})
- $$
-If we assume, without loss of generality, that
+If we assume, again without any real loss of generality, that
 \begin{equation}
 \frac12\mathop{\sum}_{1\leq i<j\leq n}w_{ij}\delta_{ij}^2=1,
 \label{eq-dnorm}
@@ -172,33 +145,13 @@ then
 \label{eq-S}
 \end{equation}
 
-$V$ is symmetric with non-positive off-diagonal elements. It is doubly-centered
-(rows and columns add up to zero) and thus weakly diagonally dominant. It
-follows that it is positive semi-definite (see @varga_62, section 1.5). Because
-of irreducibility it has rank $n-1$, and the vectors in its null space are all
-proportional to $e$, the vector with all elements equal to $+1$. The matrix
-$B(X)$ is also symmetric, positive semi-definite, and doubly-centered for each
-$X$. It may not be irreducible, because, for example, $B(0)=0$.
-
-For the notation in coefficient space we need the square, symmetric, positive
-semi-definite matrices $A_{ij}$ of order $m$ with elements
-\begin{equation}
-\{A_{ij}\}_{st}:=\text{tr}\ Y_s'A_{ij}Y_t.\label{eq-atildef}
-\end{equation}
-The squared distance equals
-\begin{equation}
-d_{ij}^2(\alpha):=\alpha'A_{ij}\alpha.\label{eq-dtildef}
-\end{equation}
-Note that we continue to overload symbols such as $A_{ij}$ and $d$. The same is
-true for $V$ from \eqref{eq-vdef}, which we define in coefficient space by using
-definition \eqref{eq-atildef}, and for $\tilde B(\alpha)$ from \eqref{eq-bdef}.
-In coefficient space
-\begin{equation}
-\sigma(\alpha):=
-1-\alpha'B(\alpha)\alpha+\frac12\alpha'V\alpha.\label{eq-stildef}
-\end{equation}
-and the MDS problem is to minimize \eqref{eq-stildef} over
-$\alpha\in\mathbb{R}^m$.
+Matrix $V$ is symmetric with non-positive off-diagonal elements. It is
+doubly-centered (rows and columns add up to zero) and thus weakly diagonally
+dominant. It follows that it is positive semi-definite (see @varga_62, section
+1.5). Because of irreducibility it has rank $n-1$, and the vectors in its null
+space are all proportional to $e$, the vector with all elements equal to $+1$.
+For all $X$ the matrix $B(X)$ is also symmetric, positive semi-definite, and
+doubly-centered. 
 
 \sectionbreak
 
@@ -209,7 +162,7 @@ Define the *Guttman Transform* of configuration $X$ as
 \Gamma(X):=V^+B(X)X
 \label{eq-guttmanx}
 \end{equation}
-The *SMACOF algorithm* in configuration space is, with iteration counter
+The *SMACOF algorithm* for unconstrained MDS is, with iteration counter
 $k\geq 1$,
 \begin{equation}
 X^{(k)}=\Gamma(X^{(k-1)})=\Gamma^k(X^{0}),
@@ -217,25 +170,18 @@ X^{(k)}=\Gamma(X^{(k-1)})=\Gamma^k(X^{0}),
 \end{equation}
 where $\Gamma^0=I$ and $\Gamma^k(X):=\Gamma(\Gamma^{k-1}(X))$.
 
-In coefficient space the Guttman Transform is
-\begin{equation}
-\Gamma(\alpha):=V^+B(\alpha)\alpha
-\label{eq-guttmana}
-\end{equation}
-The *SMACOF algorithm* in configuration space is
-\begin{equation}
-\alpha^{(k)}=\Gamma(\alpha^{(k-1)})=\Gamma^k(\alpha^{0}).
-\label{eq-smacofx}
-\end{equation}
-
-@deleeuw_C_77 shows that the SMACOF iterations \eqref{eq-smacof} tend (in a
+@deleeuw_C_77 shows that the SMACOF iterations \eqref{eq-smacofx} tend (in a
 specific sense described later in this paper) to a fixed point of the Guttman
 transform, i.e. to an $X$ with $\Gamma(X)=X$. If stress is differentiable at $X$
 then the fixed points of the Guttman transform are stationary points, where the
-derivative of stress vanishes. Also $V^+B(X)X=X$ shows that the columns of $X$
-are eigenvectors of $V^+B(X)$, with eigenvalues equal to one.
+derivative of stress vanishes. @deleeuw_A_84f shows that at a local minimum
+we have $d_{ij}(X)>0$ for all $(i,j)$ with $w_{ij}\delta_{ij}>0$, i.e.
+stress is differentiable at local minima. The equation $V^+B(X)X=X$ says that the columns of $X$
+are eigenvectors of $V^+B(X)$, with eigenvalues equal to one. @deleeuw_U_14b shows that
+if $V^+B(X)X=X$ and all eigenvalues of $V^+B(X)$ are less than or equal to one then stress has 
+its global minimum at $X$.  
 
-The algorithm (without weights) was proposed by @guttman_68, by differentiating
+The algorithm (without weights) was proposed by @guttman_68 by differentiating
 stress and setting the derivatives equal to zero. This derivation ignores the
 problem that stress is not differentiable if one or more distances are zero, and
 it also does not say anything about convergence of the algorithm. In
@@ -244,24 +190,11 @@ given, using a majorization argument based on the Cauchy-Schwarz inequality.
 This make it possible to avoid problems with differentiability, and it leads to
 a simple convergence proof.
 
-## Coefficient Space
-
-Define the *Guttman Transform* of coefficients $\alpha$ as
-\begin{equation}
-\tilde\Gamma(\alpha):=\tilde V^+\tilde B(\alpha)\alpha
-\label{eq-guttmana}
-\end{equation}
-The *SMACOF algorithm* is
-\begin{equation}
-\alpha^{(k+1)}=\tilde\Gamma(\alpha^{(k)})=\tilde\Gamma^k(\alpha^{0})
-\label{eq-smacofa}
-\end{equation}
-
 \sectionbreak
 
 # Global Convergence of SMACOF
 
-Following @deleeuw_C_77 we also define
+Following @deleeuw_C_77 we define
 \begin{align}
 \rho(X)&=\mathop{\sum}_{1\leq i<j\leq n} w_{ij}\delta_{ij}d_{ij}(X)=\text{tr}\ X'B(X)X,\\
 \eta^2(X)&=\mathop{\sum}_{1\leq i<j\leq n} w_{ij}d_{ij}^2(X)=\text{tr}\ X'VX,
@@ -500,6 +433,58 @@ different, and if the largest eigenvalue of $\mathcal{D}\Pi\Gamma(X)$ is less
 than one, then $X$ is a point of attraction, the SMACOF iterations converge to
 $X$ if started sufficiently close to it (in the *attraction ball* of $X$), and
 $R_1(X)$ is equal to the largest eigenvalue.
+
+# Coefficient Space
+
+Also define
+$$
+  \{H_{ij}\}_{st}:=\text{tr}\ Y_s'A_{ij}Y_t
+$$
+It is of some interest to look at the special case in which $Y_s=e_ke_p'$ and
+$Y_t=e_le_q'$. Then
+$$
+  \{H_{ij}\}_{st}=\text{tr}\ e_pe_k'(e_i-e_j)(e_i-e_j)'e_le_q'=\delta^{pq}(\delta^{ik}-\delta^{jk})(\delta^{il}-\delta^{jl})
+$$
+It is of some interest to look at the special case in which $Y_s=e_ke_p'$ and
+$Y_t=e_le_q'$. Then
+$$
+  \{H_{ij}\}_{st}=\text{tr}\ e_pe_k'(e_i-e_j)(e_i-e_j)'e_le_q'=\delta^{pq}(\delta^{ik}-\delta^{jk})(\delta^{il}-\delta^{jl})
+$$
+and thus
+$$
+  v_{st}=\delta^{pq}\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}(\delta^{ik}-\delta^{jk})(\delta^{il}-\delta^{jl})
+$$
+
+For the notation in coefficient space we need the square, symmetric, positive
+semi-definite matrices $A_{ij}$ of order $m$ with elements
+\begin{equation}
+\{A_{ij}\}_{st}:=\text{tr}\ Y_s'A_{ij}Y_t.\label{eq-atildef}
+\end{equation}
+The squared distance equals
+\begin{equation}
+d_{ij}^2(\alpha):=\alpha'A_{ij}\alpha.\label{eq-dtildef}
+\end{equation}
+Note that we continue to overload symbols such as $A_{ij}$ and $d$. The same is
+true for $V$ from \eqref{eq-vdef}, which we define in coefficient space by using
+definition \eqref{eq-atildef}, and for $\tilde B(\alpha)$ from \eqref{eq-bdef}.
+In coefficient space
+\begin{equation}
+\sigma(\alpha):=
+1-\alpha'B(\alpha)\alpha+\frac12\alpha'V\alpha.\label{eq-stildef}
+\end{equation}
+and the MDS problem is to minimize \eqref{eq-stildef} over
+$\alpha\in\mathbb{R}^m$.
+
+In coefficient space the Guttman Transform is
+\begin{equation}
+\Gamma(\alpha):=V^+B(\alpha)\alpha
+\label{eq-guttmana}
+\end{equation}
+The *SMACOF algorithm* in configuration space is
+\begin{equation}
+\alpha^{(k)}=\Gamma(\alpha^{(k-1)})=\Gamma^k(\alpha^{0}).
+\label{eq-smacofx}
+\end{equation}
 
 # Software
 
