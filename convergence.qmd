@@ -64,13 +64,15 @@ source("derivative.R")
 options(digits = 10) 
 ```
 
+\sectionbreak
+
 # Introduction
 
 The (Euclidean, metric, least squares, p-dimensional) multidimensional scaling
 (MDS) problem is the minimization of the real valued loss function
 \footnote{The symbol $:=$ is used for definitions.}
 \begin{equation}
-\sigma(X):=\frac12\mathop{\sum}_{1\leq i<j\leq n} w_{ij}(\delta_{ij}-d_{ij}(X))^2,
+\sigma(X):=\mathop{\sum}_{1\leq i<j\leq n} w_{ij}(\delta_{ij}-d_{ij}(X))^2,
 \label{eq-stressx}
 \end{equation}
 over *configurations* $X\in\mathcal{X}$, where *configuration space*
@@ -93,13 +95,13 @@ We call $\sigma(X)$ the *stress* of configuration $X$ (@kruskal_64a,
 his definition of stress (or *normalized stress*) adds the sum of squared
 distances as a denominator in \eqref{eq-stressx}.
 
-In tthis paper we assume that the dimensionality $p$ satisfies $1<p<n-1$. Both
+In tthis paper we assume that the *dimensionality* $p$ satisfies $1<p<n-1$. Both
 $p=1$ and $p=n-1$ are excluded, because these boundary cases of MDS have special
-properties which makes them fundamentally different from MDS for the
-intermediate values of $p$ (@deleeuw_E_23c, @deleeuw_groenen_mair_E_16e). We
-also assume, without loss of generality, that $W$ is *irreducible*, which means
-in this context that the MDS problem does not separate into a number of smaller
-MDS problems that can be solved independently (@deleeuw_C_77).
+properties which makes them fundamentally different from MDS for intermediate
+values of $p$ (@deleeuw_E_23c, @deleeuw_groenen_mair_E_16e). We also assume,
+without loss of generality, that $W$ is *irreducible*, which means in this
+context that the MDS problem does not separate into a number of smaller MDS
+problems that can be solved independently (@deleeuw_C_77).
 
 \sectionbreak
 
@@ -112,9 +114,9 @@ zero.
   A_{ij}:=(e_i-e_j)(e_i-e_j)',\label{eq-adef}
 \end{equation}
 which means elements $(i,i)$ and $(j,j)$ are equal to $+1$, while $(i,j)$ and
-$(j,i)$ are $-1$. All other elements are zero. Then
+$(j,i)$ are $-1$. All other elements are zero. With this definition
 \begin{equation}
-d_{ij}^2(X)=\text{tr}\ X'A_{ij}X,
+d_{ij}^2(X)=\text{tr}\ X'A_{ij}X.
 \label{eq-anot}
 \end{equation}
 
@@ -133,117 +135,163 @@ where
 r_{ij}(X):=\begin{cases}\frac{\delta_{ij}}{d_{ij}(X)}&\text{ if }d_{ij}(X)>0,\\
 0&\text{ if }d_{ij}(X)=0.\end{cases}\label{eq-rdef}
 \end{equation}
-
-If we assume, again without any real loss of generality, that
-\begin{equation}
-\frac12\mathop{\sum}_{1\leq i<j\leq n}w_{ij}\delta_{ij}^2=1,
-\label{eq-dnorm}
-\end{equation}
-then
-\begin{equation}
-\sigma(X)=1-\text{tr}\ X'B(X)X+\frac12\text{tr}\ X'VX.
-\label{eq-S}
-\end{equation}
-
 Matrix $V$ is symmetric with non-positive off-diagonal elements. It is
 doubly-centered (rows and columns add up to zero) and thus weakly diagonally
 dominant. It follows that it is positive semi-definite (see @varga_62, section
 1.5). Because of irreducibility it has rank $n-1$, and the vectors in its null
 space are all proportional to $e$, the vector with all elements equal to $+1$.
 For all $X$ the matrix $B(X)$ is also symmetric, positive semi-definite, and
-doubly-centered. 
+doubly-centered.
+
+If we assume, again without any real loss of generality, that
+\begin{equation}
+\mathop{\sum}_{1\leq i<j\leq n}w_{ij}\delta_{ij}^2=1,
+\label{eq-dnorm}
+\end{equation}
+then
+\begin{equation}
+\sigma(X)=1-2\text{tr}\ X'B(X)X+\text{tr}\ X'VX.
+\label{eq-S}
+\end{equation}
+
+Still following @deleeuw_C_77 we also define
+\begin{align}
+\rho(X)&:=\mathop{\sum}_{1\leq i<j\leq n} w_{ij}\delta_{ij}d_{ij}(X)=\text{tr}\ X'B(X)X,\label{eq-rhodef}\\
+\eta^2(X)&:=\mathop{\sum}_{1\leq i<j\leq n} w_{ij}d_{ij}^2(X)=\text{tr}\ X'VX,\label{eq-etadef}
+\end{align}
+and
+\begin{equation}
+\lambda(X):=\frac{\rho(X)}{\eta(X)}.\label{eq-lbddef}
+\end{equation}
+Thus
+\begin{equation}
+\sigma(X)=1-2\rho(X)+\eta^2(X),
+\label{eq-SRE}
+\end{equation}
+and
+\begin{equation}
+\min_{\alpha}\sigma(\alpha X)=1-\lambda^2(X).
+\label{eq-lstress}
+\end{equation}
 
 \sectionbreak
 
 # SMACOF
 
+The Cauchy-Schwartz inequality implies that for any pair $(X,Y)$ of
+configurations
+\begin{equation}
+d_{ij}(X)\geq\frac{1}{d_{ij}(Y)}\text{tr}\ X'A_{ij}Y,\label{eq-distcs}
+\end{equation}
+from which
+\begin{equation}
+\rho(X)\geq\text{tr}\ X'B(Y)Y.\label{eq-rhocs}
+\end{equation}
+with equality if $X=Y$.
+
 Define the *Guttman Transform* of configuration $X$ as
 \begin{equation}
-\Gamma(X):=V^+B(X)X
+\Gamma(X):=V^+B(X)X,
 \label{eq-guttmanx}
 \end{equation}
-The *SMACOF algorithm* for unconstrained MDS is, with iteration counter
-$k\geq 1$,
+with $V^+$ the Moore-Penrose inverse of $V$ given by
+\begin{equation}
+V^+=(V+\frac{1}{n}ee')^{-1}-\frac{1}{n}ee'.\label{eq-vinv}
+\end{equation}
+Then, from \eqref{eq-SRE} and \eqref{eq-rhocs},
+\begin{align}
+  \sigma(X)&\leq 1-2\text{tr}\ X'B(Y)Y+\text{tr}\ X'VX=\notag\\
+  &=1+\text{tr}\ (X-\Gamma(Y))'V(X-\Gamma(Y))
+  -\text{tr}\ \Gamma(Y)'V\Gamma(Y),\label{eq-stressmaj}
+\end{align}
+with equality if $X=Y$. It follows that if we choose $X$ so that
+\begin{equation}
+\text{tr}\ (X-\Gamma(Y))'V(X-\Gamma(Y))\leq\text{tr}\ (Y-\Gamma(Y))'V(Y-\Gamma(Y)),\label{eq-impmaj}
+\end{equation}
+then $\sigma(X)\leq\sigma(Y)$. If there is strict inequality in
+\eqref{eq-impmaj} then $\sigma(X)<\sigma(Y)$. In particular if $Y\neq\Gamma(Y)$
+then $\sigma(\Gamma(Y))<1-\eta^2(\Gamma(Y))=\sigma(Y)$.
+
+The *SMACOF algorithm* for unconstrained MDS is, with a superscripted iteration
+counter $k\geq 1$,
 \begin{equation}
 X^{(k)}=\Gamma(X^{(k-1)})=\Gamma^k(X^{0}),
 \label{eq-smacofx}
 \end{equation}
-where $\Gamma^0=I$ and $\Gamma^k(X):=\Gamma(\Gamma^{k-1}(X))$.
+where $\Gamma^0=I$ and $\Gamma^k(X):=\Gamma(\Gamma^{k-1}(X))$. If during the
+iterations we encounter an $X$ for which $X=\Gamma(X)$ we have finite
+convergence and we stop. If $p>1$ we can safely assume that the algorithm
+generates an infinite sequence (i.e. does not stop).
 
-@deleeuw_C_77 shows that the SMACOF iterations \eqref{eq-smacofx} tend (in a
+@deleeuw_C_77 shows that the SMACOF iterations \eqref{eq-smacofx} converge (in a
 specific sense described later in this paper) to a fixed point of the Guttman
 transform, i.e. to an $X$ with $\Gamma(X)=X$. If stress is differentiable at $X$
 then the fixed points of the Guttman transform are stationary points, where the
-derivative of stress vanishes. @deleeuw_A_84f shows that at a local minimum
-we have $d_{ij}(X)>0$ for all $(i,j)$ with $w_{ij}\delta_{ij}>0$, i.e.
-stress is differentiable at local minima. The equation $V^+B(X)X=X$ says that the columns of $X$
-are eigenvectors of $V^+B(X)$, with eigenvalues equal to one. @deleeuw_U_14b shows that
-if $V^+B(X)X=X$ and all eigenvalues of $V^+B(X)$ are less than or equal to one then stress has 
-its global minimum at $X$.  
+derivative of stress vanishes. @deleeuw_A_84f shows that at a local minimum we
+have $d_{ij}(X)>0$ for all $(i,j)$ with $w_{ij}\delta_{ij}>0$, i.e. stress is
+differentiable at local minima. The equation $\Gamma(X)=X$ says that the columns
+of $X$ are eigenvectors of $V^+B(X)$, with eigenvalues equal to one.
+@deleeuw_U_14b shows that if $\Gamma(X)X=X$ and all eigenvalues of $V^+B(X)$ are
+less than or equal to one then stress has its global minimum at $X$.
 
-The algorithm (without weights) was proposed by @guttman_68 by differentiating
-stress and setting the derivatives equal to zero. This derivation ignores the
-problem that stress is not differentiable if one or more distances are zero, and
-it also does not say anything about convergence of the algorithm. In
-@deleeuw_C_77 and @deleeuw_heiser_C_77 a new derivation of the algorithm was
-given, using a majorization argument based on the Cauchy-Schwarz inequality.
-This make it possible to avoid problems with differentiability, and it leads to
-a simple convergence proof.
+The SMACOF algorithm (without weights) was proposed by @guttman_68 by
+differentiating stress and setting the derivatives equal to zero. This
+derivation ignored the problem that stress is not differentiable if one or more
+distances are zero, and it also did not say anything about convergence of the
+algorithm. In @deleeuw_C_77 and @deleeuw_heiser_C_77 a new derivation of the
+algorithm was given, using the majorization argument based on the Cauchy-Schwarz
+inequality. This made it possible to avoid problems with differentiability, and
+it lead to a simple convergence proof.
 
 \sectionbreak
 
 # Global Convergence of SMACOF
 
-Following @deleeuw_C_77 we define
-\begin{align}
-\rho(X)&=\mathop{\sum}_{1\leq i<j\leq n} w_{ij}\delta_{ij}d_{ij}(X)=\text{tr}\ X'B(X)X,\\
-\eta^2(X)&=\mathop{\sum}_{1\leq i<j\leq n} w_{ij}d_{ij}^2(X)=\text{tr}\ X'VX,
-\end{align}
-and
-\begin{equation}
-\lambda(X)=\frac{\rho(X)}{\eta(X)}.
-\end{equation}
-The main result in @deleeuw_C_77 is:
+The main result in @deleeuw_C_77, which relies heavily on theory developed in
+@zangwill_69a, @ostrowski_73, and @meyer_76, is:
 
-1. The SMACOF iterates $X^{(k)}$ are in the compact set $\eta(X)\leq 1$,
+1. The iterates $X^{(k)}$ are in the compact set $\eta(X)\leq 1$,
 2. $\{\rho(X^{k})\}, \{\eta^(X^{k})\}$ and $\{\lambda(X^{k})\}$ are increasing
    sequences, with limits $\rho_\infty,\eta_\infty$ and $\lambda_\infty$, where
-   $\eta_\infty=\lambda_\infty=\sqrt{\rho_\infty}$.
+   $\eta_\infty:=\lambda_\infty:=\sqrt{\rho_\infty}$.
 3. $\{\sigma(X^{k})\}$ is a decreasing sequence converging to
-   $\sigma_\infty=1-\eta^2_\infty$.
+   $\sigma_\infty:=1-\eta^2_\infty$.
 4. At any accumulation point $X_\infty$ of $\{\sigma(X^{k})\}$ we have
    $\sigma(X_\infty)=\sigma_\infty$ and $X_\infty=\Gamma(X_\infty)$.
-5. $\eta(X^{(k+1)}-X^{(k)})\rightarrow 0$ and thus either $\{\sigma(X^{k})\}$
-   converges or the set of accumulation points of $\{\sigma(X^{k})\}$ is a
-   continuum.
+5. $\eta(X^{(k+1)}-X^{(k)})$ converges to zero and thus either
+   $\{\sigma(X^{k})\}$ converges or the set of accumulation points of
+   $\{\sigma(X^{k})\}$ is a
+   continuum\footnote{A continuum is a closed set which is not a union 
+   of two or more disjoint closed sets.}.
 
 So, in words, the sequence of stress values converges monotonically. The
-sequence of configurations is asymptotically regular and has one or more
-accumulation points. Each accumulation point is a fixed point of the Guttman
-transform. All accumulation points have the same function value, which is also
-the limit of the stress sequence.
+sequence of configurations is asymptotically
+regular\footnote{A sequence $\{x_i\}$ is asymptotically regular if 
+$\|x_{i+1}-x_i\|\rightarrow 0$ as $i\rightarrow\infty$.}
+and has one or more accumulation points. Each accumulation point is a fixed
+point of the Guttman transform. All accumulation points have the same function
+value, which is also the limit of the stress sequence.
 
 But it is important to emphasize that @deleeuw_C_77 did not show that the
-configuration sequence $\{X^{(k)}\}$ actually a Cauchy sequence, and converges
-to a configuration $X_\infty$. This is basically because of the rotational
-invariance of the MDS problem. If $K$ is a rotation matrix, i.e. $K'K=KK'=I$,
-then $d_{ij}(XK)=d_{ij}(X)$ for all $i$ and $j$, and thus
-$\sigma(XK)=\sigma(X)$. If $X$ is a fixed point of the Guttman tranform, then so
-is $XK$. Consequently there are no isolated fixed points, each fixed point is
-part of a nonlinear continuum of fixed points.
+sequence of configurations $\{X^{(k)}\}$ is actually a Cauchy sequence, and
+consequently converges to a configuration $X_\infty$. This is basically because
+of the rotational indeterminacy of the MDS problem. If $K$ is a rotation matrix,
+i.e. $K'K=KK'=I$, then $d_{ij}(XK)=d_{ij}(X)$ for all $i$ and $j$, and thus
+$\sigma(XK)=\sigma(X)$. If $X$ is a fixed point of the Guttman transform, then
+$\Gamma(XK)=\Gamma(X)K=XK$, and thus $XK$ is a fixed point as well. The rotations
+of $X$ define a continuum. There are no isolated fixed points, each fixed point is
+part of a nonlinear continuum of fixed points. Local minima are never strict.
 
-It is also of interest that @deleeuw_A_84f showed that if $X$ is a local
-minimizer of stress then $d_{ij}(X)>0$ for all $i$ and $j$ such that
-$w_{ij}\delta_{ij}>0$. Thus, if weights and dissimilarities are positive, stress
-is differentiable at a local minimum. @deleeuw_R_93c shows that stress has only
-a single local maximum at $X=0$, and consequently the only possible stationary
-points are local minima and saddle points. It is shown by @deleeuw_E_19g that
-all fixed points of the Guttman transform which are not of full column rank are
-saddle points. Thus if $X$ is a local minimizer of MDS, then adding $q$ zero
-columns to $X$ produces a saddle point $[X\mid 0]$ for (p+q)MDS. At saddle
+@deleeuw_R_93c shows that stress has only a single local maximum at $X=0$, and
+consequently the only possible stationary points are local minima and saddle
+points. It is shown by @deleeuw_E_19g that all fixed points of the Guttman
+transform which are not of full column rank are saddle points. Thus if $X$ is a
+local minimizer of MDS in $p$ dimensions, then adding $q$ zero columns to $X$
+produces a saddle point $[X\mid 0]$ for MDS in $p+q$ dimensions. At saddle
 points there are always directions in which stress can be decreased, and
 consequently the SMACOF algorithm with enough iterations will eventually get
-close to a continuum of local minima.
+close to a continuum of local minima
+(@lee_panageas_piliouras_simchowitz_jordan_recht_19).
 
 \sectionbreak
 
@@ -276,13 +324,13 @@ The rate of convergence of the SMACOF iterations at a fixed point $X$ is
 computed in @deleeuw_A_88b as the spectral norm
 $\kappa(X)=\|\mathcal{D}\Gamma(X)\|_\infty$, i.e. as the modulus of the largest
 eigenvalue of the derivative of the Guttman transform. There are good reasons to
-compute this quantity. From Ostrovski's Theorem (@ostrowski_73, theorem 22.1, p.
-151 , @ortega_rheinboldt_70, theorem 10.1.3, p. 300) we know that if
-$\kappa(X)<1$, then $X$ is a *point of attraction* of the SMACOF iteration. If
-we start close enough then the iterations will converge to $X$. We also know
-(@ostrowski_73, theorem 22.2, p. 152) that if $\kappa(X)>1$ then $X$ is a *point
-of repulsion*, which means the iterations will diverge when started in a certain
-solid angle with $X$ at its apex.
+compute this quantity. From Ostrovski's Theorem (, theorem 22.1, p. 151 ,
+@ortega_rheinboldt_70, theorem 10.1.3, p. 300) we know that if $\kappa(X)<1$,
+then $X$ is a *point of attraction* of the SMACOF iteration. If we start close
+enough then the iterations will converge to $X$. We also know (@ostrowski_73,
+theorem 22.2, p. 152) that if $\kappa(X)>1$ then $X$ is a *point of repulsion*,
+which means the iterations will diverge when started in a certain solid angle
+with $X$ at its apex.
 
 If we define, with @ortega_rheinboldt_70, chapter 9, for a sequence
 $\{X^{(k)}\}$ converging to $X$, the ratio and root convergence factors
@@ -304,11 +352,11 @@ SMACOF case that some norm exists for which there is equality
 There is a problem, however, with applying the Ostrowski and Ortega-Rheinboldt
 results in our case. Because of the invariance of distances under rotation we
 have $\kappa(X)=1$, no matter what $X$ is. And, basically for the same reason,
-we have not shown that the SMACOF iterations converge to a fixed point at all.
-@deleeuw_A_88b on page 171 acknowledges the problem. In fact, he proposes a way
-around the problem in the proof of theorem 3 on page 175, but the proof is not
-very convincing, although convincing enough to get past the reviewers. I will
-try to be more specific and precise.
+we have not shown that X^{(k)} converges to a fixed point at all. @deleeuw_A_88b
+on page 171 acknowledges the problem. In fact, he proposes a way around the
+problem in the proof of his theorem 3 on page 175, but the proof is not very
+convincing, although convincing enough to get past the reviewers. I will try to
+be more specific and precise.
 
 Observe that
 \begin{equation}
@@ -327,11 +375,11 @@ $(\mathcal{D}^2\rho(X),V)$.
 
 An explicit formula for the derivatives of the Guttman transform, or
 equivalently for the second derivatives of stress, was first given by
-@deleeuw_A_88b. We write $\mathcal{D}\Gamma(X)[Y]$ for the derivative evaluated
-at $Y$. Partial derivatives can be obtained by choosing $Y=e_ie_s'$. Of course
+@deleeuw_A_88b. We write $\partial\Gamma(X;Y)$ for the directional derivative 
+at $X$ in the direction $Y$. Partial derivatives can be obtained by choosing $Y=e_ie_s'$. Of course
 we assume here that $d_{ij}(X)>0$ for all $i<j$ with $w_{ij}\delta_{ij}>0$.
 \begin{equation}
-\mathcal{D}\Gamma(X)[Y]=V^+\{B(X)Y-H(X,Y)X\},
+\partial\Gamma(X;Y)=V^+\{B(X)Y-H(X,Y)X\},
 (\#eq:dgammamat)
 \end{equation}
 with
@@ -359,7 +407,9 @@ prove the main results in @deleeuw_A_88b.
 6. At a saddle point $X$ of stress the largest eigenvalue of
    $\mathcal{D}\Gamma(X)$ is larger than one.
 
-# Modified SMACOF
+# Rotated SMACOF
+
+## Rotation to Principal Components
 
 To avoid the problems caused by a continuum of fixed points @deleeuw_A_88b
 proposes to rotate each SMACOF iterate to a unique position, for example to
@@ -375,11 +425,11 @@ Now consider the iterations
 \begin{equation}
 \tilde X^{(k+1)}=\Pi(\Gamma(\tilde X^{(k)}))={(\Pi\Gamma)}^k(\tilde X^{0}).
 \end{equation}
-Let's call this modified SMACOF, or mSMACOF for short.
+Let's call this rotated SMACOF, or rSMACOF for short.
 
-It looks initialy as if mSMACOF require a great deal of extra computation, but
-this is actually not the case. If $M$ is a rotation matrix we have
-$\Pi(XM)=\Pi(X)$ and $\Gamma(XM)=\Gamma(X)M$. This implies that
+It looks initialy as if rSMACOF requires a great deal of extra computation, but
+this is actually not the case. If $L$ is a rotation matrix we have
+$\Pi(XL)=\Pi(X)$ and $\Gamma(XL)=\Gamma(X)L$. This implies that
 $\Pi\Gamma\Pi(X)=\Pi\Gamma(X)$ for all $X$. As a result the sequences
 $\{X^{(k)}\}$ and $\{\tilde X^{(k)}\}$ have a simple relationship. If we start
 the $\{\tilde X^{(k)}\}$ sequence with $X^{0}$ then for each $k$ we have
@@ -389,6 +439,8 @@ and the two configurations, and consequnetly also the accumulation points of the
 two sequences of configurations, just differ by a rotation. To get
 $\tilde X^{(k)}$ we can just compute the SMACOF iterate $X^{(k)}$ and rotate it
 to principal components.
+
+@deleeuw_R_08b
 
 The derivative of $\Pi\Gamma$ is, by the chain rule,
 \begin{equation}
@@ -434,7 +486,75 @@ than one, then $X$ is a point of attraction, the SMACOF iterations converge to
 $X$ if started sufficiently close to it (in the *attraction ball* of $X$), and
 $R_1(X)$ is equal to the largest eigenvalue.
 
-# Coefficient Space
+## Rotation to Lower Triangular Form
+
+Instead of rotating to principal components we can also rotate to lower
+triangular form, in which all $\frac12 p(p-1)$ elements above the main diagonal
+of $X$ are zero.
+
+@deleeuw_E_23a
+
+Suppose $X_1$, the submatrix with the first $p$ rows of $X$, is non-singular. We
+use the QR decomposition of the transpose of $X_1$. Thus $X_1'=QR$ with $Q$
+square orthonormal and $R$ upper triangular. We have $X_1=R'Q'$ and thus
+$X_1Q=R'$. Therefor $XQ$ is lower triangular.
+
+# Linear Constraints
+
+
+
+Instead of $\sum\alpha_sY_s$ use $x=Y\alpha$.
+
+$$
+\sigma(\alpha)=1-\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}\delta_{ij}d_{ij}(\alpha)+ \frac12\alpha'Y'VY\alpha
+$$
+$$
+\mathcal{D}_sd_{ij}(\alpha)=\frac{1}{d_{ij}(\alpha)}\{Y'A_{ij}Y\alpha\}_s
+$$
+$$
+\mathcal{D}\sigma(\alpha)=-Y'B(\alpha)Y\alpha+Y'VY\alpha
+$$
+$$
+\mathcal{D}^2\sigma(\alpha)=Y'VY-(Y'B(\alpha)Y-H(\alpha))
+$$
+
+$$
+\Gamma(\alpha)=(Y'VY)^{-1}Y'B(\alpha)Y\alpha
+$$
+$$
+\mathcal{D}_s\Gamma(\alpha)=(Y'VY)^{-1}\{Y'\mathcal{D}_sB(\alpha)Y\alpha+\{Y'B(\alpha)Y\}_s\}
+$$
+$$
+B(\alpha)=\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}\frac{\delta_{ij}}{d_{ij}(\alpha)}A_{ij}
+$$
+$$
+\mathcal{D}_s B(\alpha)=-\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}\frac{\delta_{ij}}{d_{ij}^2(\alpha)}A_{ij}
+\mathcal{D}_s d_{ij}(\alpha)
+$$
+
+$$
+\mathcal{D}_sd_{ij}(\alpha)=\frac{1}{d_{ij}(\alpha)}\{Y'A_{ij}Y\alpha\}_s
+$$
+
+$$
+\mathcal{D}_sB(\alpha)=-\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}\frac{\delta_{ij}}{d_{ij}^3(\alpha)}A_{ij}
+\{Y'A_{ij}Y\alpha\}_s
+$$
+$$
+H(\alpha):=Y'\mathcal{D}_sB(\alpha)Y\alpha=-\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}\frac{\delta_{ij}}{d_{ij}^3(\alpha)}Y'A_{ij}Y\alpha
+\{Y'A_{ij}Y\alpha\}_s
+$$
+$$
+\mathcal{D}\Gamma(\alpha)=(Y'VY)^{-1}\mathop{\sum\sum}_{1\leq i<j\leq n}w_{ij}\frac{\delta_{ij}}{d_{ij}(\alpha)}
+\left\{Y'A_{ij}Y-\frac{Y'A_{ij}Y\alpha\times \alpha'Y'A_{ij}Y}{d_{ij}^2(\alpha)}\right\}
+$$
+## Constrained SMACOF
+
+$$
+  X^{(k+1)}=\tilde V^+\text{tr}\ Y_t'V\Gamma(X^{(k)})
+$$
+
+## Coefficient Space
 
 Also define
 $$
@@ -485,6 +605,14 @@ The *SMACOF algorithm* in configuration space is
 \alpha^{(k)}=\Gamma(\alpha^{(k-1)})=\Gamma^k(\alpha^{0}).
 \label{eq-smacofx}
 \end{equation}
+
+# Accelerated SMACOF
+
+Suppose $Gamma(X)=X$ and $\tau\neq 1$. Then
+$2\Gamma(\tau X)-\tau X=(2-\tau)X$ and $2\Gamma((2-\tau)X)-(2-\tau)X=\tau X$
+Also $\sigma(\tau X)=\sigma((2-\tau)X)$
+
+
 
 # Software
 
